@@ -36,7 +36,7 @@ const robotsData = [
     name: "Robot-Alpha",
     status: "active",
     battery: 78,
-    location: "Bölüm A-3",
+    location: "Depo-1 / Loca A-103",
     task: "Envanter Tarama",
     lastUpdate: "2 saniye önce",
     path: [[50, 50], [100, 100], [150, 80]],
@@ -46,7 +46,7 @@ const robotsData = [
     name: "Robot-Beta",
     status: "charging",
     battery: 42,
-    location: "Şarj İstasyonu",
+    location: "Merkez / Şarj Locası",
     task: "Şarj Ediliyor",
     lastUpdate: "15 saniye önce",
     path: [],
@@ -56,7 +56,7 @@ const robotsData = [
     name: "Robot-Gamma",
     status: "active",
     battery: 91,
-    location: "Bölüm B-1",
+    location: "Depo-2 / Loca B-205",
     task: "Palet Taşıma",
     lastUpdate: "5 saniye önce",
     path: [[200, 50], [250, 80]],
@@ -73,8 +73,25 @@ const systemLogs = [
 ]
 
 export function RobotsContent() {
-  const [selectedRobot, setSelectedRobot] = useState(robotsData[0])
+  const [robots, setRobots] = useState<any[]>([])
+  const [selectedRobot, setSelectedRobot] = useState<any>(null)
   const [isManualMode, setIsManualMode] = useState(false)
+
+  useEffect(() => {
+    const fetchRobots = async () => {
+      try {
+        const res = await fetch('/api/robots')
+        const data = await res.json()
+        setRobots(data)
+        if (data.length > 0) setSelectedRobot(data[0])
+      } catch (err) {
+        console.error("Robot fetch error:", err)
+      }
+    }
+    fetchRobots()
+  }, [])
+
+  if (!selectedRobot) return <div className="p-8">Yükleniyor...</div>
 
   return (
     <motion.div
@@ -116,11 +133,28 @@ export function RobotsContent() {
                 </defs>
                 <rect width="100%" height="100%" fill="url(#grid-dots)" />
                 
-                {/* Section Silhouettes */}
-                <rect x="20" y="20" width="160" height="90" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeOpacity="0.1" rx="8" />
-                <rect x="220" y="20" width="160" height="90" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeOpacity="0.1" rx="8" />
-                <rect x="20" y="130" width="160" height="90" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeOpacity="0.1" rx="8" />
-                <rect x="220" y="130" width="160" height="90" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeOpacity="0.1" rx="8" />
+                {/* Dual-Lane Main Road (Gidiş-Dönüş) */}
+                <rect x="0" y="110" width="400" height="10" fill="currentColor" fillOpacity="0.05" /> {/* Lane 1 */}
+                <rect x="0" y="120" width="400" height="10" fill="currentColor" fillOpacity="0.08" /> {/* Lane 2 */}
+                <line x1="0" y1="120" x2="400" y2="120" stroke="currentColor" strokeWidth="1" strokeDasharray="4,4" strokeOpacity="0.2" />
+
+                {/* Locas (Top Side: 1 & 2) */}
+                <g className="locas-top">
+                  <rect x="40" y="40" width="140" height="60" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeWidth="1" strokeOpacity="0.1" rx="8" />
+                  <text x="110" y="75" fontSize="10" textAnchor="middle" fill="currentColor" fillOpacity="0.3" className="font-bold">LOCA 1</text>
+                  
+                  <rect x="220" y="40" width="140" height="60" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeWidth="1" strokeOpacity="0.1" rx="8" />
+                  <text x="290" y="75" fontSize="10" textAnchor="middle" fill="currentColor" fillOpacity="0.3" className="font-bold">LOCA 2</text>
+                </g>
+
+                {/* Locas (Bottom Side: 3 & 4) */}
+                <g className="locas-bottom">
+                  <rect x="40" y="140" width="140" height="60" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeWidth="1" strokeOpacity="0.1" rx="8" />
+                  <text x="110" y="175" fontSize="10" textAnchor="middle" fill="currentColor" fillOpacity="0.3" className="font-bold">LOCA 3</text>
+                  
+                  <rect x="220" y="140" width="140" height="60" fill="currentColor" fillOpacity="0.03" stroke="currentColor" strokeWidth="1" strokeOpacity="0.1" rx="8" />
+                  <text x="290" y="175" fontSize="10" textAnchor="middle" fill="currentColor" fillOpacity="0.3" className="font-bold">LOCA 4</text>
+                </g>
 
                 {/* Simulated Paths */}
                 <motion.path 
@@ -135,7 +169,7 @@ export function RobotsContent() {
                 />
 
                 {/* Active Robots on Map */}
-                {robotsData.map((robot, i) => (
+                {robots.map((robot, i) => (
                   <motion.g key={robot.id} initial={{ scale: 0 }} animate={{ scale: 1 }}>
                     <circle 
                       cx={robot.id === "robot-alpha" ? 140 : robot.id === "robot-gamma" ? 300 : 360} 
@@ -174,7 +208,7 @@ export function RobotsContent() {
               <CardTitle className="text-sm">Robot Filosu</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {robotsData.map((robot) => (
+              {robots.map((robot) => (
                 <button
                   key={robot.id}
                   onClick={() => setSelectedRobot(robot)}

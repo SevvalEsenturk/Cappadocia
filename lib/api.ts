@@ -25,22 +25,26 @@ export async function getCoordinates(query: string) {
   }
 }
 
-export async function getRouteDistance(start: [number, number], end: [number, number]) {
-  // OpenRouteService API (Requires API Key in production)
-  // For Hackathon Demo, we use a calculated distance if API fails, 
-  // but we try to call the real OSRM public instance first.
+export async function getDetailedRoute(start: [number, number], end: [number, number]) {
   try {
-    const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=false`);
+    const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson`);
     const data = await response.json();
     if (data.routes && data.routes.length > 0) {
-      return data.routes[0].distance / 1000; // Return in km
+      return {
+        distance: data.routes[0].distance / 1000, // km
+        geometry: data.routes[0].geometry // GeoJSON formatında rota
+      };
     }
-    // Fallback: Haversine distance
-    return calculateHaversine(start, end);
+    return null;
   } catch (error) {
     console.error("Routing error:", error);
-    return calculateHaversine(start, end);
+    return null;
   }
+}
+
+export async function getRouteDistance(start: [number, number], end: [number, number]) {
+  const route = await getDetailedRoute(start, end);
+  return route ? route.distance : calculateHaversine(start, end);
 }
 
 export async function getExchangeRates() {

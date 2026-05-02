@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   Thermometer, 
@@ -20,10 +20,13 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { cn } from "@/lib/utils"
 
-// Mock data for different sections
-const sectionsData = {
-  "Bölüm A": {
+// Mock data for Warehouses and their specific Locations (Locas)
+const warehousesData = {
+  "Depo-1 (Kuzey)": {
     temp: 12.5,
     humidity: 68,
     gas: 0.02,
@@ -31,8 +34,10 @@ const sectionsData = {
     targetTemp: 12,
     targetHumidity: 65,
     ventilation: true,
+    activeLocas: ["L-101", "L-102", "L-105"],
+    totalLocas: 24
   },
-  "Bölüm B": {
+  "Depo-2 (Güney)": {
     temp: 14.8,
     humidity: 72,
     gas: 0.05,
@@ -40,8 +45,10 @@ const sectionsData = {
     targetTemp: 12,
     targetHumidity: 65,
     ventilation: true,
+    activeLocas: ["L-201", "L-204"],
+    totalLocas: 32
   },
-  "Bölüm C": {
+  "Depo-3 (Batı)": {
     temp: 11.2,
     humidity: 60,
     gas: 0.01,
@@ -49,15 +56,8 @@ const sectionsData = {
     targetTemp: 12,
     targetHumidity: 65,
     ventilation: false,
-  },
-  "Bölüm D": {
-    temp: 13.1,
-    humidity: 65,
-    gas: 0.03,
-    status: "Optimal",
-    targetTemp: 12,
-    targetHumidity: 65,
-    ventilation: true,
+    activeLocas: ["L-310"],
+    totalLocas: 16
   }
 }
 
@@ -84,17 +84,16 @@ const itemVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.5 },
   },
 }
 
 // Sub-component: Warehouse Map (Indoor Mapping)
 function WarehouseMap({ selectedSection, onSelectSection }: { selectedSection: string, onSelectSection: (s: string) => void }) {
-  const sections = [
-    { id: "Bölüm A", x: 50, y: 50, w: 140, h: 100, color: "oklch(0.65 0.18 155)" },
-    { id: "Bölüm B", x: 210, y: 50, w: 140, h: 100, color: "oklch(0.6 0.15 230)" },
-    { id: "Bölüm C", x: 50, y: 170, w: 140, h: 100, color: "oklch(0.6 0.15 230)" },
-    { id: "Bölüm D", x: 210, y: 170, w: 140, h: 100, color: "oklch(0.65 0.18 155)" },
+  const warehouses = [
+    { id: "Depo-1 (Kuzey)", x: 30, y: 30, w: 150, h: 120, color: "oklch(0.65 0.18 155)" },
+    { id: "Depo-2 (Güney)", x: 220, y: 30, w: 150, h: 120, color: "oklch(0.6 0.15 230)" },
+    { id: "Depo-3 (Batı)", x: 30, y: 170, w: 150, h: 120, color: "oklch(0.6 0.15 230)" },
   ]
 
   return (
@@ -102,62 +101,64 @@ function WarehouseMap({ selectedSection, onSelectSection }: { selectedSection: s
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <Navigation className="w-4 h-4 text-primary" />
-          İç Mekan Haritalama (Nevşehir Depo-1)
+          Kapadokya Doğal Depo & Loca İzleme
         </CardTitle>
       </CardHeader>
       <CardContent className="relative flex items-center justify-center p-4">
         <svg viewBox="0 0 400 320" className="w-full max-w-[500px] h-auto">
-          {/* Warehouse Walls */}
-          <rect x="20" y="20" width="360" height="280" fill="none" stroke="currentColor" strokeWidth="2" strokeOpacity="0.2" rx="10" />
+          {/* Warehouse Base Grid */}
+          <rect x="10" y="10" width="380" height="300" fill="none" stroke="currentColor" strokeWidth="1" strokeOpacity="0.1" rx="12" />
           
-          {/* Corridor */}
-          <rect x="190" y="20" width="20" height="280" fill="currentColor" fillOpacity="0.05" />
+          {/* Main Access Road */}
+          <rect x="190" y="10" width="20" height="300" fill="currentColor" fillOpacity="0.03" />
 
-          {/* Sections */}
-          {sections.map((s) => (
+          {/* Warehouses */}
+          {warehouses.map((w) => (
             <motion.g 
-              key={s.id}
-              whileHover={{ scale: 1.02 }}
-              onClick={() => onSelectSection(s.id)}
+              key={w.id}
+              whileHover={{ scale: 1.01 }}
+              onClick={() => onSelectSection(w.id)}
               className="cursor-pointer"
             >
               <rect 
-                x={s.x} y={s.y} width={s.w} height={s.h} 
-                fill={selectedSection === s.id ? s.color : "currentColor"} 
-                fillOpacity={selectedSection === s.id ? 0.2 : 0.05}
-                stroke={selectedSection === s.id ? s.color : "currentColor"}
-                strokeWidth={selectedSection === s.id ? 2 : 1}
-                strokeOpacity={selectedSection === s.id ? 1 : 0.2}
+                x={w.x} y={w.y} width={w.w} height={w.h} 
+                fill={selectedSection === w.id ? w.color : "currentColor"} 
+                fillOpacity={selectedSection === w.id ? 0.15 : 0.05}
+                stroke={selectedSection === w.id ? w.color : "currentColor"}
+                strokeWidth={selectedSection === w.id ? 2 : 1}
+                strokeOpacity={selectedSection === w.id ? 1 : 0.2}
                 rx="8"
               />
-              <text 
-                x={s.x + s.w / 2} y={s.y + s.h / 2} 
-                textAnchor="middle" 
-                fontSize="12" 
-                fill="currentColor" 
-                fillOpacity="0.8"
-                style={{ fontWeight: selectedSection === s.id ? 700 : 400 }}
-              >
-                {s.id}
-              </text>
-              {/* Fake Robot Indicator */}
-              {s.id === "Bölüm B" && (
-                <motion.circle 
-                  cx={s.x + 20} cy={s.y + 20} r="4" 
-                  fill="oklch(0.65 0.16 55)" 
-                  animate={{ opacity: [1, 0.4, 1] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
+              
+              {/* Loca Grid (Visual only) */}
+              {Array.from({ length: 6 }).map((_, i) => (
+                <rect 
+                  key={i} 
+                  x={w.x + 10 + (i % 3) * 45} 
+                  y={w.y + 40 + Math.floor(i / 3) * 35} 
+                  width="35" height="25" 
+                  fill="currentColor" fillOpacity="0.05" rx="2" 
                 />
-              )}
+              ))}
+
+              <text 
+                x={w.x + w.w / 2} y={w.y + 25} 
+                textAnchor="middle" 
+                fontSize="10" 
+                fill="currentColor" 
+                className="font-bold uppercase tracking-wider"
+              >
+                {w.id}
+              </text>
             </motion.g>
           ))}
         </svg>
-        <div className="absolute bottom-4 right-4 flex items-center gap-4 text-[10px] text-muted-foreground uppercase tracking-widest">
+        <div className="absolute bottom-4 right-4 flex items-center gap-4 text-[9px] text-muted-foreground uppercase tracking-widest font-mono">
            <div className="flex items-center gap-1">
-             <div className="w-2 h-2 rounded-full bg-success" /> Optimal
+             <div className="w-2 h-2 rounded-full bg-success shadow-[0_0_8px_var(--success)]" /> Optimal
            </div>
            <div className="flex items-center gap-1">
-             <div className="w-2 h-2 rounded-full bg-accent" /> Dikkat
+             <div className="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_var(--accent)]" /> Kritik
            </div>
         </div>
       </CardContent>
@@ -216,8 +217,44 @@ function ClimateControls({ sectionName, data }: { sectionName: string, data: any
 }
 
 export function DashboardContent() {
-  const [selectedSection, setSelectedSection] = useState("Bölüm A")
-  const currentData = sectionsData[selectedSection as keyof typeof sectionsData]
+  const [selectedSection, setSelectedSection] = useState("Depo-1 (Kuzey)")
+  const [warehouses, setWarehouses] = useState(warehousesData)
+  const [locas, setLocas] = useState<any[]>([])
+  const [targets, setTargets] = useState({ temp: 12, humidity: 65 })
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch Sensors
+        const sensorRes = await fetch('/api/sensors')
+        const sensorData = await sensorRes.json()
+        if (sensorData && sensorData.length > 0) {
+          const latest = sensorData[0]
+          setWarehouses(prev => ({
+            ...prev,
+            [latest.depo_id]: {
+              ...prev[latest.depo_id as keyof typeof prev],
+              temp: parseFloat(latest.temp),
+              humidity: parseFloat(latest.humidity),
+              gas: parseFloat(latest.gas)
+            }
+          }))
+        }
+
+        // Fetch Locas for selected Warehouse
+        const locasRes = await fetch(`/api/locas?depo_id=${encodeURIComponent(selectedSection)}`)
+        const locasData = await locasRes.json()
+        setLocas(Array.isArray(locasData) ? locasData : [])
+      } catch (err) {
+        console.error("Dashboard fetch error:", err)
+      }
+    }
+    fetchData()
+    const interval = setInterval(fetchData, 5000)
+    return () => clearInterval(interval)
+  }, [selectedSection])
+
+  const currentData = warehouses[selectedSection as keyof typeof warehouses]
 
   return (
     <motion.div
@@ -251,8 +288,56 @@ export function DashboardContent() {
         <motion.div variants={itemVariants} className="xl:col-span-2">
           <WarehouseMap selectedSection={selectedSection} onSelectSection={setSelectedSection} />
         </motion.div>
+        
+        {/* Climate Controls */}
         <motion.div variants={itemVariants}>
-          <ClimateControls sectionName={selectedSection} data={currentData} />
+          <Card className="glass-card border-0 glow-border-orange h-full">
+            <CardHeader>
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Settings2 className="w-4 h-4 text-accent" />
+                {selectedSection} İklimlendirme Ayarları
+              </CardTitle>
+              <CardDescription>Hedef değerleri ve sistem modlarını belirleyin</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-muted-foreground">Hedef Sıcaklık</label>
+                  <span className="text-xs font-bold text-primary">{targets.temp}°C</span>
+                </div>
+                <Slider 
+                  value={[targets.temp]} 
+                  onValueChange={(v) => setTargets(prev => ({ ...prev, temp: v[0] }))}
+                  max={25} min={5} step={0.5} 
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-muted-foreground">Hedef Nem</label>
+                  <span className="text-xs font-bold text-success">{targets.humidity}%</span>
+                </div>
+                <Slider 
+                  value={[targets.humidity]} 
+                  onValueChange={(v) => setTargets(prev => ({ ...prev, humidity: v[0] }))}
+                  max={90} min={40} step={1} 
+                />
+              </div>
+
+              <div className="pt-4 border-t border-white/5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <label className="text-xs font-medium">Otonom Havalandırma</label>
+                    <p className="text-[10px] text-muted-foreground">Sensör verilerine göre otomatik fan kontrolü</p>
+                  </div>
+                  <Switch defaultChecked={currentData.ventilation} />
+                </div>
+                <Button className="w-full bg-primary/20 text-primary border-primary/30 hover:bg-primary/30">
+                  Ayarları Uygula
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
       </div>
 
@@ -267,7 +352,7 @@ export function DashboardContent() {
           <CardContent>
             <div className="text-2xl font-bold">{currentData.temp}°C</div>
             <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-              <ThermometerSnowflake className="w-2 h-2" /> Hedef: {currentData.targetTemp}°C
+              <ThermometerSnowflake className="w-2 h-2" /> Hedef: {targets.temp}°C
             </div>
           </CardContent>
         </Card>
@@ -280,7 +365,7 @@ export function DashboardContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{currentData.humidity}%</div>
-            <div className="text-[10px] text-muted-foreground mt-1">Hedef: %{currentData.targetHumidity}</div>
+            <div className="text-[10px] text-muted-foreground mt-1">Hedef: %{targets.humidity}</div>
           </CardContent>
         </Card>
 
@@ -305,6 +390,50 @@ export function DashboardContent() {
           <CardContent>
             <div className="text-2xl font-bold">{currentData.ventilation ? "AKTİF" : "KAPALI"}</div>
             <div className="text-[10px] text-muted-foreground mt-1">RPM: {currentData.ventilation ? "1450" : "0"}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card border-0 glow-border-blue col-span-full">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-medium flex items-center gap-2">
+              <Activity className="w-3 h-3 text-primary" />
+              Loca Durumları ({selectedSection})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {Array.isArray(locas) && locas.length > 0 ? (
+                locas.map((loca: any) => (
+                  <div key={loca.id} className="p-4 rounded-xl bg-muted/20 border border-white/5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold">{loca.id}</span>
+                      <Badge variant="outline" className={cn(
+                        "text-[9px] py-0",
+                        loca.hammadde === "Boş" ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary border-primary/20"
+                      )}>
+                        {loca.hammadde}
+                      </Badge>
+                    </div>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-muted-foreground">Doluluk</span>
+                        <span className="font-mono">{loca.occupancy}%</span>
+                      </div>
+                      <Progress value={loca.occupancy} className="h-1" />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-8 text-center text-xs text-muted-foreground italic">
+                  Bu depo için loca verisi bulunamadı. Lütfen /api/init-db rotasını çalıştırın.
+                </div>
+              )}
+            </div>
+            {Array.isArray(locas) && (
+              <p className="text-[10px] text-muted-foreground mt-4 text-center italic">
+                Toplam {currentData.totalLocas} locadan {locas.filter(l => l.hammadde !== "Boş").length} tanesi dolu.
+              </p>
+            )}
           </CardContent>
         </Card>
       </motion.div>

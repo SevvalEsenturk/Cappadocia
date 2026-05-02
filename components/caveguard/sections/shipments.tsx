@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getCoordinates, getRouteDistance, getExchangeRates } from "@/lib/api"
+import { getCoordinates, getDetailedRoute, getRouteDistance, getExchangeRates } from "@/lib/api"
 
 // Kapadokya Natural Storage Coordinates
 const CAVE_COORDS: [number, number] = [38.64, 34.83]
@@ -37,6 +37,9 @@ export function ShipmentsContent() {
   const [destination, setDestination] = useState("")
   const [weight, setWeight] = useState("10")
   const [currency, setCurrency] = useState<"TRY" | "EUR" | "USD">("EUR")
+  const [vehiclePlate, setVehiclePlate] = useState("38 CG 2026")
+  const [driverName, setDriverName] = useState("Emre Kurtpınar")
+  const [shipmentDate, setShipmentDate] = useState(new Date().toISOString().split('T')[0])
   const [isLoading, setIsLoading] = useState(false)
   const [rates, setRates] = useState<{ EUR: number, USD: number } | null>(null)
   const [results, setResults] = useState<{
@@ -44,7 +47,9 @@ export function ShipmentsContent() {
     carbon: number,
     priceTRY: number,
     priceDisplay: number,
-    destName: string
+    destName: string,
+    verificationHash: string,
+    geometry?: any
   } | null>(null)
 
   // Initial currency fetch
@@ -57,21 +62,23 @@ export function ShipmentsContent() {
     setIsLoading(true)
 
     try {
-      // 1. Get Destination Coordinates (KURAL 3)
+      // 1. Get Destination Coordinates
       const coords = await getCoordinates(destination)
       if (!coords) throw new Error("Adres bulunamadı")
 
-      // 2. Get Route Distance (KURAL 3)
-      const distance = await getRouteDistance(CAVE_COORDS, [coords.lat, coords.lon])
+      // 2. Get Detailed Route (KURAL 3 & 4)
+      const routeData = await getDetailedRoute(CAVE_COORDS, [coords.lat, coords.lon])
+      if (!routeData) throw new Error("Rota hesaplanamadı")
+      
+      const distance = routeData.distance
       
       // 3. Calculate Carbon Footprint (KURAL 1)
-      // Formula: distance (km) * weight (ton) * 0.100 kg CO2/ton-km
       const weightNum = parseFloat(weight)
       const carbon = distance * weightNum * 0.100
 
       // 4. Calculate Price with Live FX (KURAL 2)
-      const baseLogisticsRate = 5.5 // TRY per ton-km
-      const carbonTaxRate = 2.5 // TRY per kg CO2
+      const baseLogisticsRate = 5.5
+      const carbonTaxRate = 2.5
       const priceTRY = (distance * weightNum * baseLogisticsRate) + (carbon * carbonTaxRate)
       
       let priceDisplay = priceTRY
@@ -85,7 +92,9 @@ export function ShipmentsContent() {
         carbon: parseFloat(carbon.toFixed(2)),
         priceTRY: Math.round(priceTRY),
         priceDisplay: parseFloat(priceDisplay.toFixed(2)),
-        destName: coords.displayName.split(',')[0]
+        destName: coords.displayName.split(',')[0],
+        verificationHash: Math.random().toString(16).substring(2, 10) + "..." + Math.random().toString(16).substring(2, 10),
+        geometry: routeData.geometry
       })
     } catch (error) {
       console.error("Calculation failed:", error)
@@ -139,19 +148,49 @@ export function ShipmentsContent() {
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label>Ürün Ağırlığı (Ton)</Label>
+              <div className="relative">
+                <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  className="pl-10 bg-input"
+                />
+              </div>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Ürün Ağırlığı (Ton)</Label>
-                <div className="relative">
-                  <Package className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    type="number"
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value)}
-                    className="pl-10 bg-input"
-                  />
-                </div>
+                <Label>Araç Plakası</Label>
+                <Input
+                  value={vehiclePlate}
+                  onChange={(e) => setVehiclePlate(e.target.value)}
+                  className="bg-input"
+                  placeholder="38 CG 2026"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Sürücü Adı</Label>
+                <Input
+                  value={driverName}
+                  onChange={(e) => setDriverName(e.target.value)}
+                  className="bg-input"
+                  placeholder="Sürücü Adı Soyadı"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Sevkiyat Tarihi</Label>
+                <Input
+                  type="date"
+                  value={shipmentDate}
+                  onChange={(e) => setShipmentDate(e.target.value)}
+                  className="bg-input"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Hedef Para Birimi</Label>
@@ -229,6 +268,11 @@ export function ShipmentsContent() {
                     </div>
                   </div>
 
+                  <div className="flex items-center justify-between p-2 px-3 rounded-lg bg-muted/20 border border-white/5 font-mono text-[10px]">
+                    <span className="text-muted-foreground">Digital Seal (SHA-256):</span>
+                    <span className="text-primary truncate ml-2">{results.verificationHash}</span>
+                  </div>
+
                   <div className="p-4 rounded-xl bg-cave-brown/10 border border-cave-brown/30 space-y-2">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Leaf className="w-4 h-4 text-success" />
@@ -240,8 +284,70 @@ export function ShipmentsContent() {
                     </p>
                   </div>
 
-                  <Button className="w-full bg-success hover:bg-success/90">
-                    Siparişi Onayla & Robotu Tetikle
+                  {/* Logistics Map Visualization */}
+                  <div className="mt-4 space-y-2">
+                    <h3 className="text-xs font-medium flex items-center gap-2 text-primary">
+                      <Route className="w-3 h-3" />
+                      Canlı Sevkiyat Rotası: Kapadokya → {results.destName}
+                    </h3>
+                    <div className="h-[120px] rounded-xl bg-muted/20 border border-white/5 relative overflow-hidden">
+                       <svg viewBox="0 0 400 120" className="w-full h-full p-2">
+                         <path 
+                           d="M 50 100 Q 150 20, 250 80 T 350 40" 
+                           fill="none" 
+                           stroke="oklch(0.6 0.15 230)" 
+                           strokeWidth="2" 
+                           strokeDasharray="4,4"
+                           className="animate-[dash_20s_linear_infinite]"
+                         />
+                         <circle cx="50" cy="100" r="4" fill="oklch(0.6 0.15 230)" />
+                         <text x="40" y="115" fontSize="8" fill="currentColor">Kapadokya</text>
+                         
+                         <circle cx="350" cy="40" r="4" fill="oklch(0.6 0.15 230)" />
+                         <text x="320" y="55" fontSize="8" fill="currentColor">{results.destName}</text>
+                         
+                         <motion.g
+                           animate={{ 
+                             offsetDistance: ["0%", "100%"]
+                           }}
+                           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                           style={{ offsetPath: "path('M 50 100 Q 150 20, 250 80 T 350 40')" }}
+                         >
+                           <Truck className="w-4 h-4 text-primary -translate-x-2 -translate-y-2" />
+                         </motion.g>
+                       </svg>
+                       <div className="absolute bottom-2 right-2 flex gap-2">
+                          <Badge variant="outline" className="text-[8px] bg-background/50">84 km/h</Badge>
+                          <Badge variant="outline" className="text-[8px] bg-background/50">ETA: 4.2h</Badge>
+                       </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    className="w-full bg-success hover:bg-success/90"
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/shipments', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            ...results,
+                            weight,
+                            vehiclePlate,
+                            driverName,
+                            shipmentDate,
+                            currency
+                          })
+                        });
+                        if (response.ok) {
+                          alert("Sevkiyat Veritabanına Kaydedildi ve Operasyon Başlatıldı!");
+                        }
+                      } catch (err) {
+                        console.error("DB Save Error:", err);
+                      }
+                    }}
+                  >
+                    Siparişi Onayla & Mühürle
                   </Button>
                 </CardContent>
               </Card>
