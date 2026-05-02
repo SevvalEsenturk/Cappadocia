@@ -16,6 +16,7 @@ import {
   Wifi,
   Sun,
   Moon,
+  LogIn
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -128,7 +129,7 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
           })}
         </nav>
 
-        {/* Theme Toggle & Status */}
+        {/* Theme Toggle & User Profile */}
         <div className="p-3 border-t border-sidebar-border space-y-2">
           {mounted && (
             <Button
@@ -150,6 +151,37 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
               )}
             </Button>
           )}
+
+          {/* User Profile Info */}
+          <div className={cn(
+            "p-3 rounded-2xl bg-sidebar-accent/50 border border-sidebar-border flex items-center gap-3",
+            isCollapsed ? "justify-center" : ""
+          )}>
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+              AD
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-xs font-bold truncate">Admin</span>
+                <span className="text-[10px] text-primary font-medium">Doğal Depo Sahibi</span>
+              </div>
+            )}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              localStorage.clear();
+              window.location.href = "/";
+            }}
+            className={cn(
+              "w-full flex items-center justify-start gap-3 px-3 py-2.5 rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10"
+            )}
+          >
+            <LogIn className="w-4 h-4 rotate-180" />
+            {!isCollapsed && <span>Oturumu Kapat</span>}
+          </Button>
 
           <div
             className={cn(

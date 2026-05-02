@@ -1,38 +1,26 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
+import sql from '@/lib/db';
 
 export async function GET() {
-  let connection;
   try {
-    connection = await pool.getConnection();
-    await connection.query('USE caveguard');
-    
-    const [rows] = await connection.query('SELECT * FROM robots');
-    return NextResponse.json(rows);
+    const robots = await sql`SELECT * FROM robots ORDER BY id ASC`;
+    return NextResponse.json(robots);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    if (connection) connection.release();
   }
 }
 
 export async function PATCH(request: Request) {
-  let connection;
   try {
-    const { id, status, battery, location, task } = await request.json();
-    
-    connection = await pool.getConnection();
-    await connection.query('USE caveguard');
-    
-    await connection.query(
-      'UPDATE robots SET status = ?, battery = ?, location = ?, task = ? WHERE id = ?',
-      [status, battery, location, task, id]
-    );
-
-    return NextResponse.json({ success: true });
+    const data = await request.json();
+    const [updatedRobot] = await sql`
+      UPDATE robots 
+      SET status = ${data.status}, battery = ${data.battery}, location = ${data.location}, task = ${data.task}, last_update = NOW() 
+      WHERE id = ${data.id} 
+      RETURNING *
+    `;
+    return NextResponse.json(updatedRobot);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    if (connection) connection.release();
   }
 }

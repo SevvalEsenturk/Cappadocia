@@ -1,38 +1,25 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/lib/db';
+import sql from '@/lib/db';
 
-export async function POST(request: Request) {
-  let connection;
+export async function GET() {
   try {
-    const { depo_id, temp, humidity, gas } = await request.json();
-    
-    connection = await pool.getConnection();
-    await connection.query('USE caveguard');
-    
-    await connection.query(
-      'INSERT INTO sensors (depo_id, temp, humidity, gas) VALUES (?, ?, ?, ?)',
-      [depo_id, temp, humidity, gas]
-    );
-
-    return NextResponse.json({ success: true });
+    const sensors = await sql`SELECT * FROM sensors ORDER BY created_at DESC`;
+    return NextResponse.json(sensors);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    if (connection) connection.release();
   }
 }
 
-export async function GET() {
-  let connection;
+export async function POST(request: Request) {
   try {
-    connection = await pool.getConnection();
-    await connection.query('USE caveguard');
-    
-    const [rows] = await connection.query('SELECT * FROM sensors ORDER BY timestamp DESC LIMIT 10');
-    return NextResponse.json(rows);
+    const data = await request.json();
+    const [newSensor] = await sql`
+      INSERT INTO sensors (depo_id, temp, humidity, gas) 
+      VALUES (${data.depo_id}, ${data.temp}, ${data.humidity}, ${data.gas}) 
+      RETURNING *
+    `;
+    return NextResponse.json(newSensor);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
-  } finally {
-    if (connection) connection.release();
   }
 }
