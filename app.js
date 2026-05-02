@@ -45,7 +45,7 @@ document.head.appendChild(style);
 
 
 -
-    // Initialize Lucide icons
+    /// Initialize Lucide icons
     lucide.createIcons();
 
 // View Templates
