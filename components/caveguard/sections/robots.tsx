@@ -275,7 +275,7 @@ export function RobotsContent() {
                     {t("robot.battery")}
                   </span>
                   <span className={cn("font-bold", selected.battery > 50 ? "text-success" : selected.battery > 20 ? "text-amber-400" : "text-red-400")}>
-                    {Math.round(selected.battery)}%
+                    %{Math.round(selected.battery)}
                   </span>
                 </div>
                 <Progress value={selected.battery} className="h-2" />
@@ -318,7 +318,7 @@ export function RobotsContent() {
                     <p className="text-[9px] text-muted-foreground truncate">{robot.task}</p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className={cn("text-[10px] font-bold", robot.battery > 50 ? "text-success" : "text-amber-400")}>{Math.round(robot.battery)}%</p>
+                    <p className={cn("text-[10px] font-bold", robot.battery > 50 ? "text-success" : "text-amber-400")}>%{Math.round(robot.battery)}</p>
                   </div>
                 </div>
               ))}

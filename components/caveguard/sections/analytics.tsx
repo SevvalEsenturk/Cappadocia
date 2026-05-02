@@ -26,7 +26,7 @@ import {
 
 const monthlyShipments = [
   { month: "Oca", shipments: 45, carbon: 1250 },
-  { month: "Sub", shipments: 52, carbon: 1420 },
+  { month: "Şub", shipments: 52, carbon: 1420 },
   { month: "Mar", shipments: 48, carbon: 1310 },
   { month: "Nis", shipments: 61, carbon: 1580 },
   { month: "May", shipments: 55, carbon: 1450 },
@@ -43,7 +43,7 @@ const kpiCards = [
   {
     title: "Toplam Sevkiyat",
     value: "328",
-    change: "+12%",
+    change: "%+12",
     trend: "up",
     icon: Package,
     color: "blue",
@@ -51,23 +51,23 @@ const kpiCards = [
   {
     title: "Karbon Tasarrufu",
     value: "2.4t",
-    change: "+8%",
+    change: "%+8",
     trend: "up",
     icon: Leaf,
     color: "green",
   },
   {
-    title: "Ort. Teslimat Suresi",
-    value: "4.2h",
-    change: "-15%",
+    title: "Ort. Teslimat Süresi",
+    value: "4.2 sa",
+    change: "%-15",
     trend: "up",
     icon: Clock,
     color: "orange",
   },
   {
-    title: "Hedef Basarisi",
-    value: "96%",
-    change: "+3%",
+    title: "Hedef Başarısı",
+    value: "%96",
+    change: "%+3",
     trend: "up",
     icon: Target,
     color: "blue",
@@ -110,7 +110,7 @@ export function AnalyticsContent() {
           <span className="gradient-text-blue">Analizleri</span>
         </h1>
         <p className="text-muted-foreground">
-          Detayli istatistikler, trendler ve operasyonel veriler
+          Detaylı istatistikler, trendler ve operasyonel veriler
         </p>
       </motion.div>
 
@@ -174,7 +174,7 @@ export function AnalyticsContent() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="w-5 h-5 text-primary" />
-                Aylik Sevkiyat ve Karbon Analizi
+                Aylık Sevkiyat ve Karbon Analizi
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -263,7 +263,7 @@ export function AnalyticsContent() {
                         borderRadius: "12px",
                         backdropFilter: "blur(20px)",
                       }}
-                      formatter={(value: number) => [`${value}%`, ""]}
+                      formatter={(value: number) => [`%${value}`, ""]}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -278,7 +278,7 @@ export function AnalyticsContent() {
                       />
                       <span className="text-muted-foreground">{item.name}</span>
                     </div>
-                    <span className="font-semibold">{item.value}%</span>
+                    <span className="font-semibold">%{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -293,7 +293,7 @@ export function AnalyticsContent() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Leaf className="w-5 h-5 text-success" />
-              Karbon Ayak Izi Trendi
+              Karbon Ayak İzi Trendi
             </CardTitle>
           </CardHeader>
           <CardContent>
