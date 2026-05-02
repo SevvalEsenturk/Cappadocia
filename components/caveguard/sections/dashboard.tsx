@@ -364,7 +364,7 @@ export function DashboardContent() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currentData.humidity}%</div>
+            <div className="text-2xl font-bold">%{currentData.humidity}</div>
             <div className="text-[10px] text-muted-foreground mt-1">Hedef: %{targets.humidity}</div>
           </CardContent>
         </Card>
@@ -417,7 +417,7 @@ export function DashboardContent() {
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-[10px]">
                         <span className="text-muted-foreground">Doluluk</span>
-                        <span className="font-mono">{loca.occupancy}%</span>
+                        <span className="font-mono">%{loca.occupancy}</span>
                       </div>
                       <Progress value={loca.occupancy} className="h-1" />
                     </div>

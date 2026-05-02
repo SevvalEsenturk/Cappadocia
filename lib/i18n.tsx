@@ -43,7 +43,7 @@ const allTranslations: Record<string, Record<string, string>> = {
     "ship.from": "Çıkış",
     "ship.to": "Varış",
     "ship.distance": "Mesafe",
-    "ship.carbon": "Karbon (K1)",
+    "ship.carbon": "Karbon (kg)",
     "ship.costTRY": "Maliyet (TRY)",
     "ship.costUSD": "Maliyet (USD)",
     "ship.confirm": "Siparişi Onayla & Mühürle",

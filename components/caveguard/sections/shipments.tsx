@@ -327,7 +327,7 @@ export function ShipmentsContent() {
                       <p className="text-lg font-bold">{results.distance} km</p>
                     </div>
                     <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-                      <p className="text-[10px] text-emerald-400 uppercase">Karbon (K1)</p>
+                      <p className="text-[10px] text-emerald-400 uppercase">Karbon (kg)</p>
                       <p className="text-lg font-bold text-emerald-400">{results.carbon} kg</p>
                     </div>
                     <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-center">
