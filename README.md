@@ -43,7 +43,7 @@ Sistem, yerel üreticiyi global pazarda korumak için ileri seviye hesaplama ara
 ---
 
 ## 🛡️ Güvenlik ve Şeffaflık: Dijital Mühürleme
-Tüm sevkiyat ve depolama verileri, **SHA-256 tabanlı dijital mühürleme** mekanizması ile güvence altına alınır. Bu sayede, ürünün tarladan depoya, depodan son tüketiciye kadar olan serüveni değiştirilemez ve şeffaf bir şekilde izlenebilir (Traceability).
+Tüm sevkiyat ve depolama verileri, **SHA-256 tabanlı dijital mühürleme** mekanizması ile  güvence altına alınır. Bu sayede, ürünün tarladan depoya, depodan son tüketiciye kadar olan serüveni değiştirilemez ve şeffaf bir şekilde izlenebilir (Traceability).
 
 ---
 
