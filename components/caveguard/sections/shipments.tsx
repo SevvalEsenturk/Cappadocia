@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   MapPin,
@@ -29,25 +29,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getCoordinates, getDetailedRoute, getRouteDistance, getExchangeRates } from "@/lib/api"
+import { getCoordinates, getDetailedRoute, getExchangeRates } from "@/lib/api"
 
 // Kapadokya Natural Storage Coordinates
 const CAVE_COORDS: [number, number] = [38.64, 34.83]
 
 export function ShipmentsContent() {
   const [destination, setDestination] = useState("")
-  const [weight, setWeight] = useState("10")
-  const [currency, setCurrency] = useState<"TRY" | "EUR" | "USD">("EUR")
+  const [weight, setWeight] = useState("1.5")
+  const [currency, setCurrency] = useState<"TRY" | "USD" | "EUR">("TRY")
+  const [transportMode, setTransportMode] = useState("road")
+  const [exchangeRates, setExchangeRates] = useState({ USD: 32.45, EUR: 35.12 })
+  const [lastUpdate, setLastUpdate] = useState(new Date())
   const [vehiclePlate, setVehiclePlate] = useState("38 CG 2026")
-  const [driverName, setDriverName] = useState("Emre Kurtpınar")
+  const [driverName, setDriverName] = useState("Ahmet Kapadokya")
   const [shipmentDate, setShipmentDate] = useState(new Date().toISOString().split('T')[0])
   const [isLoading, setIsLoading] = useState(false)
-  const [rates, setRates] = useState<{ EUR: number, USD: number } | null>(null)
   const [results, setResults] = useState<{
     distance: number,
     carbon: number,
     priceTRY: number,
-    priceDisplay: number,
+    priceUSD: number,
     destName: string,
     verificationHash: string,
     geometry?: any
@@ -61,14 +63,35 @@ export function ShipmentsContent() {
       const data = await res.json()
       setHistory(Array.isArray(data) ? data : [])
     } catch (err) {
-      console.error("History fetch error:", err)
+      console.error("Geçmiş verisi çekilemedi:", err)
     }
   }
 
-  // Initial data fetch
   useEffect(() => {
-    getExchangeRates().then(setRates)
     fetchHistory()
+  }, [])
+
+  // Canlı TCMB Döviz Takip Sistemi
+  useEffect(() => {
+    const updateRates = async () => {
+      try {
+        const res = await fetch('/api/exchange-rates')
+        const data = await res.json()
+        if (data.USD && data.EUR) {
+          setExchangeRates({
+            USD: data.USD,
+            EUR: data.EUR
+          })
+          setLastUpdate(new Date())
+        }
+      } catch (err) {
+        console.error("TCMB kur güncelleme hatası:", err)
+      }
+    }
+    
+    updateRates() // İlk yükleme
+    const interval = setInterval(updateRates, 10000)
+    return () => clearInterval(interval)
   }, [])
 
   const handleCalculate = async () => {
@@ -76,42 +99,31 @@ export function ShipmentsContent() {
     setIsLoading(true)
 
     try {
-      // 1. Get Destination Coordinates
       const coords = await getCoordinates(destination)
       if (!coords) throw new Error("Adres bulunamadı")
 
-      // 2. Get Detailed Route (KURAL 3 & 4)
       const routeData = await getDetailedRoute(CAVE_COORDS, [coords.lat, coords.lon])
       if (!routeData) throw new Error("Rota hesaplanamadı")
       
       const distance = routeData.distance
-      
-      // 3. Calculate Carbon Footprint (KURAL 1)
       const weightNum = parseFloat(weight)
       const carbon = distance * weightNum * 0.100
 
-      // 4. Calculate Price with Live FX (KURAL 2)
       const baseLogisticsRate = 5.5
       const carbonTaxRate = 2.5
       const priceTRY = (distance * weightNum * baseLogisticsRate) + (carbon * carbonTaxRate)
       
-      let priceDisplay = priceTRY
-      if (rates) {
-        if (currency === "EUR") priceDisplay = priceTRY / rates.EUR
-        else if (currency === "USD") priceDisplay = priceTRY / rates.USD
-      }
-
       setResults({
         distance: Math.round(distance),
         carbon: parseFloat(carbon.toFixed(2)),
         priceTRY: Math.round(priceTRY),
-        priceDisplay: parseFloat(priceDisplay.toFixed(2)),
+        priceUSD: parseFloat((priceTRY / exchangeRates.USD).toFixed(2)),
         destName: coords.displayName.split(',')[0],
         verificationHash: Math.random().toString(16).substring(2, 10) + "..." + Math.random().toString(16).substring(2, 10),
         geometry: routeData.geometry
       })
     } catch (error) {
-      console.error("Calculation failed:", error)
+      console.error("İşlem başarısız:", error)
     } finally {
       setIsLoading(false)
     }
@@ -126,17 +138,23 @@ export function ShipmentsContent() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
-            Global <span className="gradient-text-green">Lojistik & Karbon Paneli</span>
+            Lojistik & <span className="gradient-text-green">Karbon Yönetim Merkezi</span>
           </h1>
           <p className="text-muted-foreground">
-            Kural 1, 2 ve 3 tabanlı dinamik ihracat yönetim sistemi
+            Yapay zeka destekli dinamik rota ve maliyet optimizasyonu
           </p>
         </div>
-        {rates && (
-          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 py-2">
-            <RefreshCcw className="w-3 h-3 mr-2" /> Canlı Kur: 1 EUR = {rates.EUR.toFixed(2)} TRY
+        <div className="flex gap-2">
+          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 py-2 px-3 backdrop-blur-sm">
+            <DollarSign className="w-3 h-3 mr-1" /> USD: {exchangeRates.USD.toFixed(2)}
           </Badge>
-        )}
+          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 py-2 px-3 backdrop-blur-sm">
+            <Euro className="w-3 h-3 mr-1" /> EUR: {exchangeRates.EUR.toFixed(2)}
+          </Badge>
+          <div className="flex items-center text-[10px] text-muted-foreground ml-2">
+            <RefreshCcw className="w-3 h-3 mr-1 animate-spin-slow" /> {lastUpdate.toLocaleTimeString()}
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -162,6 +180,22 @@ export function ShipmentsContent() {
                 />
               </div>
             </div>
+            
+            <div className="space-y-2">
+              <Label>Taşıma Modu</Label>
+              <Select value={transportMode} onValueChange={setTransportMode}>
+                <SelectTrigger className="bg-input">
+                  <SelectValue placeholder="Seçiniz" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="air">Hava Kargo (0.500 kg CO2)</SelectItem>
+                  <SelectItem value="road">Kara Yolu / TIR (0.100 kg CO2)</SelectItem>
+                  <SelectItem value="rail">Demir Yolu (0.030 kg CO2)</SelectItem>
+                  <SelectItem value="sea">Deniz Yolu (0.015 kg CO2)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="space-y-2">
               <Label>Ürün Ağırlığı (Ton)</Label>
               <div className="relative">
@@ -267,18 +301,22 @@ export function ShipmentsContent() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="p-3 rounded-xl bg-muted/30 border border-white/5">
-                      <p className="text-[10px] text-muted-foreground">Mesafe</p>
-                      <p className="text-lg font-bold">{results.distance} <small className="text-xs">km</small></p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="p-3 rounded-xl bg-muted/30 border border-white/5 text-center">
+                      <p className="text-[10px] text-muted-foreground uppercase">Mesafe</p>
+                      <p className="text-lg font-bold">{results.distance} km</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-success/5 border border-success/20">
-                      <p className="text-[10px] text-success">Karbon (K1)</p>
-                      <p className="text-lg font-bold text-success">{results.carbon} <small className="text-xs">kg</small></p>
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                      <p className="text-[10px] text-emerald-400 uppercase">Karbon (K1)</p>
+                      <p className="text-lg font-bold text-emerald-400">{results.carbon} kg</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-accent/5 border border-accent/20">
-                      <p className="text-[10px] text-accent">Maliyet (K2)</p>
-                      <p className="text-lg font-bold text-accent">{results.priceDisplay} <small className="text-xs">{currency}</small></p>
+                    <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-center">
+                      <p className="text-[10px] text-primary uppercase">Maliyet (TRY)</p>
+                      <p className="text-lg font-bold text-primary">{results.priceTRY.toLocaleString()} ₺</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-accent/10 border border-accent/20 text-center">
+                      <p className="text-[10px] text-accent uppercase">Maliyet (USD)</p>
+                      <p className="text-lg font-bold text-accent">${results.priceUSD ? results.priceUSD.toFixed(2) : (results.priceTRY / exchangeRates.USD).toFixed(2)}</p>
                     </div>
                   </div>
 
@@ -293,7 +331,7 @@ export function ShipmentsContent() {
                       Yeşil Mutabakat Uyumluluk Notu
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Bu sevkiyat için 0.100 katsayısı ile karbon ayak izi hesaplanmıştır. 
+                      Bu sevkiyat için mod bazlı karbon ayak izi hesaplanmıştır. 
                       Toplam maliyete karbon dengeleme vergisi dahil edilmiştir.
                     </p>
                   </div>
@@ -302,79 +340,26 @@ export function ShipmentsContent() {
                   <div className="mt-6 space-y-3">
                     <h3 className="text-xs font-medium flex items-center gap-2 text-primary">
                       <Route className="w-4 h-4" />
-                      Lojistik Operasyon Haritası (ORS Live Layer)
+                      Lojistik Operasyon Haritası (Live)
                     </h3>
                     <div className="relative group">
                       <div 
                         id="shipment-map" 
-                        className="h-[250px] rounded-2xl bg-muted/20 border border-white/5 overflow-hidden z-0"
+                        className="h-[300px] rounded-[2rem] bg-muted/20 border border-white/5 overflow-hidden z-0"
                       />
-                      {/* Overlay info */}
                       <div className="absolute top-4 right-4 flex flex-col gap-2 z-[1000]">
-                         <Badge variant="outline" className="bg-background/80 backdrop-blur-md text-[10px] py-1 px-2 border-primary/20">
+                         <Badge variant="outline" className="bg-background/80 backdrop-blur-md text-[10px] py-1 px-2 border-primary/20 shadow-xl">
                            Kapadokya → {results.destName}
                          </Badge>
-                         <Badge variant="outline" className="bg-background/80 backdrop-blur-md text-[10px] py-1 px-2 border-success/20 text-success">
-                           Gerçek Zamanlı Rota Aktif
+                         <Badge variant="outline" className="bg-background/80 backdrop-blur-md text-[10px] py-1 px-2 border-success/20 text-success shadow-xl">
+                           Canlı Rota Analizi
                          </Badge>
                       </div>
                     </div>
                   </div>
 
-                  <script dangerouslySetInnerHTML={{
-                    __html: `
-                      (function() {
-                        if (typeof window === 'undefined') return;
-                        
-                        // Load Leaflet CSS
-                        if (!document.getElementById('leaflet-css')) {
-                          const link = document.createElement('link');
-                          link.id = 'leaflet-css';
-                          link.rel = 'stylesheet';
-                          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-                          document.head.appendChild(link);
-                        }
-
-                        // Load Leaflet JS
-                        if (!window.L) {
-                          const script = document.createElement('script');
-                          script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-                          script.onload = initMap;
-                          document.head.appendChild(script);
-                        } else {
-                          initMap();
-                        }
-
-                        function initMap() {
-                          const mapContainer = document.getElementById('shipment-map');
-                          if (!mapContainer || mapContainer._leaflet_id) return;
-
-                          const map = L.map('shipment-map').setView([38.64, 34.83], 6);
-                          
-                          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                            attribution: '© OpenStreetMap contributors'
-                          }).addTo(map);
-
-                          const geoData = ${JSON.stringify(results.geometry)};
-                          if (geoData) {
-                            const routeLayer = L.geoJSON(geoData, {
-                              style: {
-                                color: '#3b82f6',
-                                weight: 4,
-                                opacity: 0.8,
-                                dashArray: '10, 10'
-                              }
-                            }).addTo(map);
-                            map.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
-                          }
-
-                          // Start & End Markers
-                          L.circleMarker([38.64, 34.83], { radius: 6, color: '#3b82f6', fillOpacity: 1 }).addTo(map)
-                            .bindPopup('Kapadokya Depo (Çıkış)');
-                        }
-                      })();
-                    `
-                  }} />
+                  {/* Map Initialization Logic */}
+                  <MapController geometry={results.geometry} />
 
                   <Button 
                     className="w-full bg-success hover:bg-success/90 py-6 text-base font-bold shadow-lg shadow-success/20"
@@ -389,7 +374,8 @@ export function ShipmentsContent() {
                             vehiclePlate,
                             driverName,
                             shipmentDate,
-                            currency
+                            currency,
+                            priceUSD: results.priceUSD
                           })
                         });
                         if (response.ok) {
@@ -480,4 +466,91 @@ export function ShipmentsContent() {
       </Card>
     </motion.div>
   )
+}
+
+// KURAL 3: Canlı Rota Yönetim Bileşeni (React-Leaflet Entegrasyonu)
+function MapController({ geometry }: { geometry: any }) {
+  const mapRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const initMap = () => {
+      // @ts-ignore
+      if (!window.L || !document.getElementById('shipment-map')) return;
+      if (mapRef.current) return;
+
+      // @ts-ignore
+      const map = window.L.map('shipment-map', {
+        zoomControl: false,
+        attributionControl: false
+      }).setView([38.64, 34.83], 6);
+      
+      // @ts-ignore
+      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+      mapRef.current = map;
+    };
+
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    // @ts-ignore
+    if (!window.L) {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = initMap;
+      document.head.appendChild(script);
+    } else {
+      initMap();
+    }
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // @ts-ignore
+    if (!mapRef.current || !geometry || !window.L) return;
+
+    // @ts-ignore
+    mapRef.current.eachLayer((layer: any) => {
+      // @ts-ignore
+      if (layer instanceof window.L.GeoJSON || layer instanceof window.L.Marker || layer instanceof window.L.CircleMarker) {
+        mapRef.current.removeLayer(layer);
+      }
+    });
+
+    // @ts-ignore
+    const routeLayer = window.L.geoJSON(geometry, {
+      style: {
+        color: '#3b82f6',
+        weight: 5,
+        opacity: 0.8,
+        dashArray: '10, 15',
+        lineCap: 'round'
+      }
+    }).addTo(mapRef.current);
+
+    // Başlangıç Noktası (Kapadokya)
+    // @ts-ignore
+    window.L.circleMarker([38.64, 34.83], { 
+      radius: 8, 
+      color: '#3b82f6', 
+      fillColor: '#3b82f6', 
+      fillOpacity: 1 
+    }).addTo(mapRef.current).bindPopup('Kapadokya Lojistik Merkezi');
+
+    mapRef.current.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+  }, [geometry]);
+
+  return null;
 }
