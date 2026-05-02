@@ -43,9 +43,9 @@ style.textContent = `
 document.head.appendChild(style);
 
 
-
-// Initialize Lucide icons
-lucide.createIcons();
+-
+    // Initialize Lucide icons
+    lucide.createIcons();
 
 // View Templates
 const views = {
