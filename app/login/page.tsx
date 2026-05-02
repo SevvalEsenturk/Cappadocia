@@ -21,9 +21,12 @@ export default function LoginPage() {
     // Simüle edilen giriş kontrolü (Hackathon isterlerine göre)
     setTimeout(() => {
       if (username === "admin" && password === "admin") {
-        // Giriş başarılı
-        localStorage.setItem("userRole", "Doğal Depo Sahibi")
-        localStorage.setItem("userName", "Admin")
+        localStorage.setItem("userRole", "admin")
+        localStorage.setItem("userName", "Sistem Yöneticisi")
+        router.push("/dashboard")
+      } else if (username === "ahmetkapadokya" && password === "ahmet1") {
+        localStorage.setItem("userRole", "user")
+        localStorage.setItem("userName", "Ahmet Kapadokya")
         router.push("/dashboard")
       } else {
         setError("Geçersiz kullanıcı adı veya şifre.")

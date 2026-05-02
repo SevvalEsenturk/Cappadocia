@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
+import { useI18n } from "@/lib/i18n"
 import {
   LayoutDashboard,
   Truck,
@@ -32,17 +33,18 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "shipments", label: "Sevkiyat Yönetimi", icon: Truck },
-  { id: "robots", label: "Robot İzleme", icon: Bot },
-  { id: "analytics", label: "Analizler", icon: BarChart3 },
-  { id: "settings", label: "Ayarlar", icon: Settings },
+  { id: "dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { id: "shipments", labelKey: "nav.shipments", icon: Truck },
+  { id: "robots", labelKey: "nav.robots", icon: Bot },
+  { id: "analytics", labelKey: "nav.analytics", icon: BarChart3 },
+  { id: "settings", labelKey: "nav.settings", icon: Settings },
 ]
 
 export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { t } = useI18n()
 
   // Avoid hydration mismatch
   useEffect(() => setMounted(true), [])
@@ -107,7 +109,7 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
                       transition={{ duration: 0.2 }}
                       className="truncate"
                     >
-                      {item.label}
+                      {t(item.labelKey)}
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -119,7 +121,7 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
                 <Tooltip key={item.id}>
                   <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
                   <TooltipContent side="right" className="glass-card">
-                    {item.label}
+                    {t(item.labelKey)}
                   </TooltipContent>
                 </Tooltip>
               )
@@ -147,26 +149,13 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
                 <Moon className="w-4 h-4 text-blue-500" />
               )}
               {!isCollapsed && (
-                <span>{theme === "dark" ? "Aydınlık Mod" : "Karanlık Mod"}</span>
+                <span>{theme === "dark" ? t("nav.darkMode") : t("nav.lightMode")}</span>
               )}
             </Button>
           )}
 
-          {/* User Profile Info */}
-          <div className={cn(
-            "p-3 rounded-2xl bg-sidebar-accent/50 border border-sidebar-border flex items-center gap-3",
-            isCollapsed ? "justify-center" : ""
-          )}>
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">
-              AD
-            </div>
-            {!isCollapsed && (
-              <div className="flex flex-col overflow-hidden">
-                <span className="text-xs font-bold truncate">Admin</span>
-                <span className="text-[10px] text-primary font-medium">Doğal Depo Sahibi</span>
-              </div>
-            )}
-          </div>
+
+
 
           <Button
             variant="ghost"
@@ -180,7 +169,7 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
             )}
           >
             <LogIn className="w-4 h-4 rotate-180" />
-            {!isCollapsed && <span>Oturumu Kapat</span>}
+            {!isCollapsed && <span>{t("nav.logout")}</span>}
           </Button>
 
           <div
@@ -202,8 +191,8 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
                   transition={{ duration: 0.2 }}
                   className="flex flex-col"
                 >
-                  <span className="text-xs font-medium text-success">Sistem Çevrimiçi</span>
-                  <span className="text-[10px] text-muted-foreground">Tüm sistemler aktif</span>
+                  <span className="text-xs font-medium text-success">{t("nav.systemOnline")}</span>
+                  <span className="text-[10px] text-muted-foreground">{t("nav.allActive")}</span>
                 </motion.div>
               )}
             </AnimatePresence>

@@ -9,11 +9,30 @@ import { AnalyticsContent } from "./sections/analytics"
 import { SettingsContent } from "./sections/settings"
 import { Badge } from "@/components/ui/badge"
 import { DollarSign, Euro, RefreshCcw, Bell, User } from "lucide-react"
+import { I18nProvider, useI18n } from "@/lib/i18n"
 
 export function CaveGuardLayout() {
+  return (
+    <I18nProvider>
+      <CaveGuardInner />
+    </I18nProvider>
+  )
+}
+
+function CaveGuardInner() {
+  const { t } = useI18n()
   const [activeSection, setActiveSection] = useState("dashboard")
   const [exchangeRates, setExchangeRates] = useState({ USD: 32.45, EUR: 35.12 })
-  const [lastUpdate, setLastUpdate] = useState(new Date())
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
+  const [userName, setUserName] = useState("Kullanıcı")
+  const [userRole, setUserRole] = useState("")
+
+  useEffect(() => {
+    const name = localStorage.getItem("userName")
+    const role = localStorage.getItem("userRole")
+    if (name) setUserName(name)
+    if (role) setUserRole(role)
+  }, [])
 
   // Global TCMB Döviz Takip Sistemi
   useEffect(() => {
@@ -37,7 +56,7 @@ export function CaveGuardLayout() {
   const renderContent = () => {
     switch (activeSection) {
       case "dashboard": return <DashboardContent />
-      case "shipments": return <ShipmentsContent globalRates={exchangeRates} />
+      case "shipments": return <ShipmentsContent />
       case "robots": return <RobotsContent />
       case "analytics": return <AnalyticsContent />
       case "settings": return <SettingsContent />
@@ -59,9 +78,11 @@ export function CaveGuardLayout() {
             <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 py-1.5 px-3 flex items-center gap-2 whitespace-nowrap">
               <Euro className="w-3 h-3" /> EUR: {exchangeRates.EUR.toFixed(2)}
             </Badge>
-            <div className="hidden md:flex items-center text-[10px] text-muted-foreground gap-1 whitespace-nowrap">
-              <RefreshCcw className="w-3 h-3 animate-spin-slow" /> {lastUpdate.toLocaleTimeString()}
-            </div>
+            {lastUpdate && (
+              <div className="hidden md:flex items-center text-[10px] text-muted-foreground gap-1 whitespace-nowrap">
+                <RefreshCcw className="w-3 h-3 animate-spin-slow" /> {lastUpdate.toLocaleTimeString()}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -72,8 +93,8 @@ export function CaveGuardLayout() {
             <div className="h-8 w-[1px] bg-white/5 mx-1 hidden sm:block" />
             <div className="flex items-center gap-2 pl-2">
               <div className="text-right hidden sm:block">
-                <p className="text-[11px] font-bold">Admin</p>
-                <p className="text-[9px] text-muted-foreground">Kapadokya HQ</p>
+                <p className="text-[11px] font-bold">{userName}</p>
+                <p className="text-[9px] text-muted-foreground">{userRole === "admin" ? t("header.sysAdmin") : t("header.fieldOp")}</p>
               </div>
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center border border-white/10">
                 <User className="w-5 h-5 text-white" />

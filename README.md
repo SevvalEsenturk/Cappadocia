@@ -40,6 +40,13 @@ Sistem, yerel üreticiyi global pazarda korumak için ileri seviye hesaplama ara
 - **Dinamik Maliyet Yönetimi:** TCMB resmi verileriyle entegre çalışan sistem, döviz kuru risklerini yöneterek karbon vergisi dahil "Toplam İhracat Fiyatı"nı canlı verilerle sunar.
 - **Dijkstra Rota Optimizasyonu:** En çevreci ve maliyet etkin rotalar, gelişmiş algoritmalar ile belirlenerek lojistik verimlilik artırılır.
 
+### 🇪🇺 4. AB CBAM (SKDM) Uyumluluk Modülü
+Avrupa Birliği'nin Sınırda Karbon Düzenleme Mekanizması (CBAM — AB Yönetmeliği 2023/956), Ocak 2026 itibarıyla tam yürürlüğe girmiştir. CaveGuard, Türk ihracatçısını bu düzenlemeye hazırlamak için entegre bir uyumluluk modülü sunar:
+- **Gömülü Emisyon Hesaplama:** Her sevkiyatın toplam gömülü karbon emisyonu, lojistik taşımacılık (ton-km bazlı) ve üretim süreci (gübre, sulama, işleme: ~0,3 ton CO2/ton ürün) olmak üzere iki katmanlı olarak hesaplanır.
+- **CBAM Sertifika Maliyeti:** AB ETS (Emisyon Ticaret Sistemi) güncel karbon fiyatı (~€90/ton CO2) üzerinden ithalatçının satın alması gereken CBAM sertifika adedi ve toplam maliyeti anlık olarak gösterilir.
+- **Uyumluluk Sınıflandırması:** Sevkiyatlar, toplam gömülü emisyona göre A (düşük risk), B (orta risk) veya C (yüksek risk) olarak sınıflandırılır. Bu derecelendirme, ihracatçının rekabet gücünü doğrudan etkiler.
+
+
 ---
 
 ## 🛡️ Güvenlik ve Şeffaflık: Dijital Mühürleme
