@@ -43,6 +43,7 @@ style.textContent = `
 document.head.appendChild(style);
 
 
+
 // Initialize Lucide icons
 lucide.createIcons();
 
