@@ -1,13 +1,11 @@
 import postgres from 'postgres';
 
-// Supabase PostgreSQL bağlantı bilgileri
-const connectionString = 'postgresql://postgres:DJL16pTtnADq5tvb@db.nxhjdawwlpybqcbheeux.supabase.co:5432/postgres';
+// Yeni IPv4 uyumlu Supabase Pooler bağlantı bilgileri
+const connectionString = 'postgresql://postgres.nxhjdawwlpybqcbheeux:DJL16pTtnADq5tvb@aws-0-eu-west-1.pooler.supabase.com:5432/postgres';
 
-// sql objesi doğrudan sorgu yapmak için kullanılır
 const sql = postgres(connectionString, {
-  ssl: 'require', // Supabase için SSL zorunludur
-  idle_timeout: 20,
-  max_lifetime: 60 * 30,
+  ssl: 'require',
+  prepare: false // Pooler kullanırken 'false' olması bağlantı kararlılığı için kritiktir
 });
 
 export default sql;
