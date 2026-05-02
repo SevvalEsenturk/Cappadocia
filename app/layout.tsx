@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CaveGuard | Mission Control - Kapadokya 2026',
+  title: 'CaveGuard | Kapadokya 2026',
   description: 'Autonomous logistics, real-time sensor data, and carbon footprint tracking for Cappadocia natural cave storage management.',
   generator: 'v0.app',
   icons: {

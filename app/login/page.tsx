@@ -56,7 +56,7 @@ export default function LoginPage() {
               </div>
             </Link>
             <h1 className="text-3xl font-extrabold text-slate-900">CaveGuard</h1>
-            <p className="text-slate-500 mt-2 font-medium">Mission Control Girişi</p>
+            <p className="text-slate-500 mt-2 font-medium">Yönetim Paneli Girişi</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
@@ -68,7 +68,7 @@ export default function LoginPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium text-slate-900 placeholder:text-slate-400"
                   placeholder="admin"
                   required
                 />
@@ -83,7 +83,7 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium"
+                  className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all font-medium text-slate-900 placeholder:text-slate-400"
                   placeholder="••••••••"
                   required
                 />
@@ -119,6 +119,33 @@ export default function LoginPage() {
           <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400">
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
             Blockchain Güvenlik Doğrulaması Aktif
+          </div>
+
+          {/* Kullanıcı Bilgi Kutusu */}
+          <div className="mt-6 p-4 rounded-2xl bg-slate-800/60 border border-slate-700/50 backdrop-blur-sm">
+            <p className="text-[11px] font-bold text-slate-300 mb-3 flex items-center gap-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-400" /> Tanımlı Kullanıcılar
+            </p>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/15">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center text-[10px] font-bold text-blue-400">A</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-white">admin / admin</p>
+                    <p className="text-[9px] text-blue-400">🛡️ Sistem Yöneticisi — Tüm erişim</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/15">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-[10px] font-bold text-emerald-400">U</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-white">ahmetkapadokya / ahmet1</p>
+                    <p className="text-[9px] text-emerald-400">👷 Saha Operatörü — Kısıtlı erişim</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

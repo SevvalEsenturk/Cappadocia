@@ -74,9 +74,6 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
                 <span className="text-lg font-semibold tracking-tight gradient-text-blue">
                   CaveGuard
                 </span>
-                <span className="text-[10px] text-muted-foreground tracking-widest uppercase">
-                  Mission Control
-                </span>
               </motion.div>
             )}
           </AnimatePresence>

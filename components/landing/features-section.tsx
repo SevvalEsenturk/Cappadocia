@@ -35,7 +35,7 @@ const features = [
     color: "bg-pink-50 text-pink-600"
   },
   {
-    title: "Mission Control Panel",
+    title: "Yönetim Paneli",
     description: "Tüm operasyonu tek bir merkezden izleyebileceğiniz, yapay zeka destekli yönetim arayüzü.",
     icon: BarChart3,
     color: "bg-slate-50 text-slate-600"

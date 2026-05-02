@@ -532,13 +532,21 @@ function MapController({ geometry }: { geometry: any }) {
 
       // @ts-ignore
       const map = window.L.map('shipment-map', {
-        zoomControl: false,
+        zoomControl: true,
         attributionControl: false
       }).setView([38.64, 34.83], 6);
       
+      // CartoDB Voyager — renkli ve her temada okunabilir harita
       // @ts-ignore
-      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd'
+      }).addTo(map);
+
       mapRef.current = map;
+
+      // Harita container boyutu değiştiğinde yeniden hesapla
+      setTimeout(() => map.invalidateSize(), 300);
     };
 
     if (!document.getElementById('leaflet-css')) {
@@ -553,7 +561,7 @@ function MapController({ geometry }: { geometry: any }) {
     if (!window.L) {
       const script = document.createElement('script');
       script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-      script.onload = initMap;
+      script.onload = () => setTimeout(initMap, 100);
       document.head.appendChild(script);
     } else {
       initMap();
@@ -569,37 +577,63 @@ function MapController({ geometry }: { geometry: any }) {
 
   useEffect(() => {
     // @ts-ignore
-    if (!mapRef.current || !geometry || !window.L) return;
+    if (!mapRef.current || !geometry || !geometry.coordinates || !window.L) return;
 
+    // Haritayı yenile (container boyutu değişmiş olabilir)
+    mapRef.current.invalidateSize();
+
+    // Önceki rota katmanlarını temizle (tile layer hariç)
     // @ts-ignore
     mapRef.current.eachLayer((layer: any) => {
       // @ts-ignore
-      if (layer instanceof window.L.GeoJSON || layer instanceof window.L.Marker || layer instanceof window.L.CircleMarker) {
-        mapRef.current.removeLayer(layer);
+      if (layer instanceof window.L.GeoJSON || layer instanceof window.L.Marker || layer instanceof window.L.CircleMarker || layer instanceof window.L.Polyline) {
+        // Tile layer'ı silme
+        if (!layer._url) {
+          mapRef.current.removeLayer(layer);
+        }
       }
     });
 
+    // OSRM geometry'yi coordinates dizisinden Leaflet LatLng'ye çevir
+    // OSRM: [lon, lat] → Leaflet: [lat, lon]
+    const latLngs = geometry.coordinates.map((coord: number[]) => [coord[1], coord[0]]);
+
+    if (latLngs.length === 0) return;
+
+    // Rota çizgisi
     // @ts-ignore
-    const routeLayer = window.L.geoJSON(geometry, {
-      style: {
-        color: '#3b82f6',
-        weight: 5,
-        opacity: 0.8,
-        dashArray: '10, 15',
-        lineCap: 'round'
-      }
+    const polyline = window.L.polyline(latLngs, {
+      color: '#3b82f6',
+      weight: 5,
+      opacity: 0.85,
+      dashArray: '12, 8',
+      lineCap: 'round',
+      lineJoin: 'round'
     }).addTo(mapRef.current);
 
-    // Başlangıç Noktası (Kapadokya)
+    // Başlangıç Noktası (Kapadokya) — Mavi
     // @ts-ignore
     window.L.circleMarker([38.64, 34.83], { 
       radius: 8, 
-      color: '#3b82f6', 
+      color: '#ffffff', 
+      weight: 2,
       fillColor: '#3b82f6', 
       fillOpacity: 1 
-    }).addTo(mapRef.current).bindPopup('Kapadokya Lojistik Merkezi');
+    }).addTo(mapRef.current).bindPopup('<b>📍 Kapadokya</b><br>Lojistik Merkezi');
 
-    mapRef.current.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+    // Varış Noktası — Kırmızı
+    const lastPoint = latLngs[latLngs.length - 1];
+    // @ts-ignore
+    window.L.circleMarker(lastPoint, { 
+      radius: 8, 
+      color: '#ffffff', 
+      weight: 2,
+      fillColor: '#ef4444', 
+      fillOpacity: 1 
+    }).addTo(mapRef.current).bindPopup('<b>🏁 Varış Noktası</b>');
+
+    // Haritayı rota sınırlarına sığdır
+    mapRef.current.fitBounds(polyline.getBounds(), { padding: [50, 50] });
   }, [geometry]);
 
   return null;
