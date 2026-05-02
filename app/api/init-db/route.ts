@@ -10,6 +10,13 @@ export async function GET() {
     await connection.query('CREATE DATABASE IF NOT EXISTS caveguard');
     await connection.query('USE caveguard');
 
+    // 0. Drop existing tables to ensure schema update (Clean Install for Hackathon)
+    await connection.query('DROP TABLE IF EXISTS shipments');
+    await connection.query('DROP TABLE IF EXISTS locas');
+    await connection.query('DROP TABLE IF EXISTS sensors');
+    await connection.query('DROP TABLE IF EXISTS robots');
+    await connection.query('DROP TABLE IF EXISTS system_logs');
+
     // 2. Create Sensors Table with Targets
     await connection.query(`
       CREATE TABLE IF NOT EXISTS sensors (

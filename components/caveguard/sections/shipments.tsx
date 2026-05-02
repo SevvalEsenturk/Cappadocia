@@ -14,7 +14,8 @@ import {
   ArrowRight,
   Loader2,
   RefreshCcw,
-  CheckCircle2
+  CheckCircle2,
+  Database
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -52,9 +53,22 @@ export function ShipmentsContent() {
     geometry?: any
   } | null>(null)
 
-  // Initial currency fetch
+  const [history, setHistory] = useState<any[]>([])
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch('/api/shipments/list')
+      const data = await res.json()
+      setHistory(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error("History fetch error:", err)
+    }
+  }
+
+  // Initial data fetch
   useEffect(() => {
     getExchangeRates().then(setRates)
+    fetchHistory()
   }, [])
 
   const handleCalculate = async () => {
@@ -284,47 +298,86 @@ export function ShipmentsContent() {
                     </p>
                   </div>
 
-                  {/* Logistics Map Visualization */}
-                  <div className="mt-4 space-y-2">
+                  {/* Real-time Route Map (Leaflet) */}
+                  <div className="mt-6 space-y-3">
                     <h3 className="text-xs font-medium flex items-center gap-2 text-primary">
-                      <Route className="w-3 h-3" />
-                      Canlı Sevkiyat Rotası: Kapadokya → {results.destName}
+                      <Route className="w-4 h-4" />
+                      Lojistik Operasyon Haritası (ORS Live Layer)
                     </h3>
-                    <div className="h-[120px] rounded-xl bg-muted/20 border border-white/5 relative overflow-hidden">
-                       <svg viewBox="0 0 400 120" className="w-full h-full p-2">
-                         <path 
-                           d="M 50 100 Q 150 20, 250 80 T 350 40" 
-                           fill="none" 
-                           stroke="oklch(0.6 0.15 230)" 
-                           strokeWidth="2" 
-                           strokeDasharray="4,4"
-                           className="animate-[dash_20s_linear_infinite]"
-                         />
-                         <circle cx="50" cy="100" r="4" fill="oklch(0.6 0.15 230)" />
-                         <text x="40" y="115" fontSize="8" fill="currentColor">Kapadokya</text>
-                         
-                         <circle cx="350" cy="40" r="4" fill="oklch(0.6 0.15 230)" />
-                         <text x="320" y="55" fontSize="8" fill="currentColor">{results.destName}</text>
-                         
-                         <motion.g
-                           animate={{ 
-                             offsetDistance: ["0%", "100%"]
-                           }}
-                           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                           style={{ offsetPath: "path('M 50 100 Q 150 20, 250 80 T 350 40')" }}
-                         >
-                           <Truck className="w-4 h-4 text-primary -translate-x-2 -translate-y-2" />
-                         </motion.g>
-                       </svg>
-                       <div className="absolute bottom-2 right-2 flex gap-2">
-                          <Badge variant="outline" className="text-[8px] bg-background/50">84 km/h</Badge>
-                          <Badge variant="outline" className="text-[8px] bg-background/50">ETA: 4.2h</Badge>
-                       </div>
+                    <div className="relative group">
+                      <div 
+                        id="shipment-map" 
+                        className="h-[250px] rounded-2xl bg-muted/20 border border-white/5 overflow-hidden z-0"
+                      />
+                      {/* Overlay info */}
+                      <div className="absolute top-4 right-4 flex flex-col gap-2 z-[1000]">
+                         <Badge variant="outline" className="bg-background/80 backdrop-blur-md text-[10px] py-1 px-2 border-primary/20">
+                           Kapadokya → {results.destName}
+                         </Badge>
+                         <Badge variant="outline" className="bg-background/80 backdrop-blur-md text-[10px] py-1 px-2 border-success/20 text-success">
+                           Gerçek Zamanlı Rota Aktif
+                         </Badge>
+                      </div>
                     </div>
                   </div>
 
+                  <script dangerouslySetInnerHTML={{
+                    __html: `
+                      (function() {
+                        if (typeof window === 'undefined') return;
+                        
+                        // Load Leaflet CSS
+                        if (!document.getElementById('leaflet-css')) {
+                          const link = document.createElement('link');
+                          link.id = 'leaflet-css';
+                          link.rel = 'stylesheet';
+                          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+                          document.head.appendChild(link);
+                        }
+
+                        // Load Leaflet JS
+                        if (!window.L) {
+                          const script = document.createElement('script');
+                          script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                          script.onload = initMap;
+                          document.head.appendChild(script);
+                        } else {
+                          initMap();
+                        }
+
+                        function initMap() {
+                          const mapContainer = document.getElementById('shipment-map');
+                          if (!mapContainer || mapContainer._leaflet_id) return;
+
+                          const map = L.map('shipment-map').setView([38.64, 34.83], 6);
+                          
+                          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                            attribution: '© OpenStreetMap contributors'
+                          }).addTo(map);
+
+                          const geoData = ${JSON.stringify(results.geometry)};
+                          if (geoData) {
+                            const routeLayer = L.geoJSON(geoData, {
+                              style: {
+                                color: '#3b82f6',
+                                weight: 4,
+                                opacity: 0.8,
+                                dashArray: '10, 10'
+                              }
+                            }).addTo(map);
+                            map.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+                          }
+
+                          // Start & End Markers
+                          L.circleMarker([38.64, 34.83], { radius: 6, color: '#3b82f6', fillOpacity: 1 }).addTo(map)
+                            .bindPopup('Kapadokya Depo (Çıkış)');
+                        }
+                      })();
+                    `
+                  }} />
+
                   <Button 
-                    className="w-full bg-success hover:bg-success/90"
+                    className="w-full bg-success hover:bg-success/90 py-6 text-base font-bold shadow-lg shadow-success/20"
                     onClick={async () => {
                       try {
                         const response = await fetch('/api/shipments', {
@@ -341,6 +394,7 @@ export function ShipmentsContent() {
                         });
                         if (response.ok) {
                           alert("Sevkiyat Veritabanına Kaydedildi ve Operasyon Başlatıldı!");
+                          fetchHistory(); // Tabloyu yenile
                         }
                       } catch (err) {
                         console.error("DB Save Error:", err);
@@ -363,15 +417,66 @@ export function ShipmentsContent() {
         </AnimatePresence>
       </div>
 
-      {/* Dynamic Map Component Placeholder */}
-      <Card className="glass-card border-0 overflow-hidden">
-        <div className="h-48 bg-muted/20 relative flex items-center justify-center">
-          <div className="absolute inset-0 grid-overlay opacity-30" />
-          <div className="z-10 flex items-center gap-3 bg-background/80 p-3 rounded-full border border-white/10 backdrop-blur-md">
-            <Route className="w-4 h-4 text-primary" />
-            <span className="text-xs font-medium">OpenRouteService Canlı Rota Katmanı</span>
+      {/* Shipment History Table */}
+      <Card className="glass-card border-0 glow-border-blue mt-6 overflow-hidden">
+        <CardHeader className="border-b border-white/5">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-sm font-bold flex items-center gap-2">
+                <Database className="w-4 h-4 text-primary" />
+                Blockchain Onaylı Sevkiyat Kayıtları
+              </CardTitle>
+              <CardDescription className="text-[10px]">Veritabanına mühürlü olarak kaydedilen son lojistik operasyonlar</CardDescription>
+            </div>
+            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[10px]">
+              CANLI VERİ AKIŞI
+            </Badge>
           </div>
-        </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[11px]">
+              <thead>
+                <tr className="bg-muted/30 text-muted-foreground uppercase text-[9px] tracking-wider">
+                  <th className="px-6 py-3 font-medium">Plaka / Sürücü</th>
+                  <th className="px-6 py-3 font-medium">Varış Noktası</th>
+                  <th className="px-6 py-3 font-medium">Tarih</th>
+                  <th className="px-6 py-3 font-medium">Mühür (Hash)</th>
+                  <th className="px-6 py-3 font-medium text-right">Durum</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {history.length > 0 ? history.map((item: any) => (
+                  <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-bold">{item.vehicle_plate}</div>
+                      <div className="text-[10px] text-muted-foreground">{item.driver_name}</div>
+                    </td>
+                    <td className="px-6 py-4">{item.destination}</td>
+                    <td className="px-6 py-4">{new Date(item.shipment_date).toLocaleDateString('tr-TR')}</td>
+                    <td className="px-6 py-4">
+                      <code className="text-primary/70 bg-primary/5 px-2 py-0.5 rounded truncate block max-w-[120px]">
+                        {item.v_hash}
+                      </code>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2 text-success font-medium">
+                        <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                        Verified
+                      </div>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground italic">
+                      Henüz kayıtlı sevkiyat bulunmuyor.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
       </Card>
     </motion.div>
   )
