@@ -42,6 +42,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
+
 // Initialize Lucide icons
 lucide.createIcons();
 
@@ -169,25 +170,25 @@ function showView(viewName) {
     currentState.view = viewName;
     const container = document.getElementById('view-container');
     const title = document.getElementById('view-title');
-    
+
     // Update active nav
     document.querySelectorAll('nav li').forEach(li => {
         li.classList.remove('active');
-        if(li.innerText.toLowerCase().includes(viewName === 'shipments' ? 'sevkiyat' : viewName)) {
+        if (li.innerText.toLowerCase().includes(viewName === 'shipments' ? 'sevkiyat' : viewName)) {
             li.classList.add('active');
         }
     });
 
-    title.innerText = viewName === 'dashboard' ? 'Dashboard' : 
-                      viewName === 'shipments' ? 'Sevkiyat Yönetimi' : 
-                      viewName === 'robots' ? 'Robot İzleme' : 'Analizler';
+    title.innerText = viewName === 'dashboard' ? 'Dashboard' :
+        viewName === 'shipments' ? 'Sevkiyat Yönetimi' :
+            viewName === 'robots' ? 'Robot İzleme' : 'Analizler';
 
     container.innerHTML = views[viewName] || '<h2>Coming Soon</h2>';
     lucide.createIcons();
 
-    if(viewName === 'dashboard') {
+    if (viewName === 'dashboard') {
         initChart();
-    } else if(viewName === 'shipments') {
+    } else if (viewName === 'shipments') {
         initMap();
         document.getElementById('shipment-form').onsubmit = handleShipmentSubmit;
         document.getElementById('confirm-btn').onclick = handleConfirmOrder;
@@ -198,12 +199,12 @@ async function handleConfirmOrder() {
     const btn = document.getElementById('confirm-btn');
     btn.disabled = true;
     btn.innerText = "Sipariş Gönderiliyor...";
-    
+
     // Simulate API delay
     setTimeout(() => {
         showToast("Sipariş Onaylandı! Robot-Beta görevlendirildi.", "success");
         btn.innerText = "Sipariş Tamamlandı";
-        
+
         // Switch to robot view after delay
         setTimeout(() => {
             showView('robots');
@@ -216,7 +217,7 @@ function initChart() {
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Array.from({length: 12}, (_, i) => `${i*2}:00`),
+            labels: Array.from({ length: 12 }, (_, i) => `${i * 2}:00`),
             datasets: [{
                 label: 'Sıcaklık (°C)',
                 data: [12.1, 12.2, 12.4, 12.5, 12.5, 12.4, 12.3, 12.5, 12.6, 12.5, 12.5, 12.5],
@@ -257,13 +258,13 @@ async function handleShipmentSubmit(e) {
     e.preventDefault();
     const dest = document.getElementById('dest-input').value;
     const weight = parseFloat(document.getElementById('weight-input').value);
-    
+
     // Simulate Nominatim / OpenRouteService logic
     // Mocking distance based on "distance" from Cappadocia
     // (Randomized for demo, in real it would call fetch)
     const mockDist = Math.floor(Math.random() * 3000) + 500;
     const carbon = (mockDist * weight * 0.100).toFixed(2);
-    
+
     // Live Currency Mock (TCMB EVDS Simulation)
     const basePriceTRY = weight * 5000 + (mockDist * 20); // Simulated base logistics price
     const carbonTaxTRY = carbon * 2.5; // Simulated carbon tax
@@ -277,10 +278,10 @@ async function handleShipmentSubmit(e) {
     document.getElementById('confirm-btn').style.display = 'block';
 
     // Simulate map update
-    if(map) {
+    if (map) {
         // Just move view to show scope
         map.flyTo([48, 13], 4);
-        L.polyline([[38.64, 34.83], [52.52, 13.40]], {color: '#3498db', weight: 3, dashArray: '10, 10'}).addTo(map);
+        L.polyline([[38.64, 34.83], [52.52, 13.40]], { color: '#3498db', weight: 3, dashArray: '10, 10' }).addTo(map);
     }
 }
 
