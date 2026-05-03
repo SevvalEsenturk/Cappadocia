@@ -97,6 +97,14 @@ const allTranslations: Record<string, Record<string, string>> = {
     "robot.exit": "ÇIKIŞ",
 
     // Settings
+    "set.profile": "Kullanıcı Profili",
+    "set.avatarUpload": "Profil Fotoğrafı Yükle",
+    "set.avatarDesc": "En fazla 2MB, JPG/PNG/WebP formatları desteklenir.",
+    "set.changePhoto": "Fotoğraf Yükle / Değiştir",
+    "set.uploadBtn": "Yükle ve Güncelle",
+    "set.uploading": "Yükleniyor...",
+    "set.uploadSuccess": "Profil fotoğrafı güncellendi!",
+    "set.uploadError": "Yükleme sırasında hata oluştu.",
     "set.notifications": "Bildirim Tercihleri",
     "set.notifDesc": "Tüm kullanıcılar düzenleyebilir",
     "set.criticalAlerts": "Kritik Sistem Uyarıları",

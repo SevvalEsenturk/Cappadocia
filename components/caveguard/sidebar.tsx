@@ -26,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { UserAvatar } from "@/components/ui/user-avatar"
 
 interface SidebarProps {
   activeSection: string
@@ -152,8 +153,25 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
             </Button>
           )}
 
-
-
+          <div className={cn(
+            "flex items-center gap-3 px-2 py-3 mb-2 rounded-2xl bg-muted/20 border border-white/5",
+            isCollapsed && "justify-center px-0"
+          )}>
+            <UserAvatar 
+              username={mounted ? (localStorage.getItem("userName")?.replace(/\s/g, '') || "HasanBozkurt") : ""} 
+              className="w-10 h-10"
+            />
+            {!isCollapsed && (
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-bold truncate">
+                  {mounted ? localStorage.getItem("userName") : "..."}
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate uppercase tracking-tighter">
+                  {mounted ? (localStorage.getItem("userRole") === "admin" ? t("set.sysAdmin") : t("set.fieldOp")) : "..."}
+                </span>
+              </div>
+            )}
+          </div>
 
           <Button
             variant="ghost"
