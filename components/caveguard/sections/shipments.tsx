@@ -170,9 +170,12 @@ export function ShipmentsContent() {
         const aiData = await aiRes.json()
         if (aiData.suggestion) {
           setAiSuggestion(aiData.suggestion)
+        } else if (aiData.error) {
+          setAiSuggestion("⚠️ Öneri şu an oluşturulamadı: " + aiData.error)
         }
       } catch (aiErr) {
         console.error('AI Öneri hatası:', aiErr)
+        setAiSuggestion("❌ AI servisine ulaşılamıyor. Lütfen internet bağlantınızı kontrol edin.")
       } finally {
         setAiLoading(false)
       }
