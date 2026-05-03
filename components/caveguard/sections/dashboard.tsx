@@ -278,7 +278,7 @@ export function DashboardContent() {
       <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">
-            Nevşehir <span className="gradient-text-blue">Doğal Depo Yönetimi</span>
+            Nevşehir <span className="gradient-text-blue">PeriCloud Akıllı İzleme</span>
           </h1>
           <p className="text-muted-foreground">
             Bölgesel sensör verileri ve otonom iklimlendirme kontrolü

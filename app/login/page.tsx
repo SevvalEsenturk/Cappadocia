@@ -51,11 +51,11 @@ export default function LoginPage() {
         <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-blue-900/5 border border-slate-100 p-10">
           <div className="flex flex-col items-center mb-10">
             <Link href="/" className="mb-6 group">
-              <div className="w-16 h-16 rounded-[1.5rem] bg-blue-600 flex items-center justify-center shadow-xl shadow-blue-200 group-hover:scale-110 transition-transform">
-                <Bot className="w-10 h-10 text-white" />
+              <div className="w-32 h-32 flex items-center justify-center group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                <img src="/logo.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl" />
               </div>
             </Link>
-            <h1 className="text-3xl font-extrabold text-slate-900">CaveGuard</h1>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">PeriCloud</h1>
             <p className="text-slate-500 mt-2 font-medium">Yönetim Paneli Girişi</p>
           </div>
 

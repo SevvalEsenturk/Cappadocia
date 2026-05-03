@@ -59,8 +59,8 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
       >
         {/* Logo */}
         <div className="flex items-center gap-3 p-4 border-b border-sidebar-border">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 glow-border-blue">
-            <Mountain className="w-5 h-5 text-primary" />
+          <div className="flex items-center justify-center w-12 h-12 overflow-hidden">
+            <img src="/logo.png" alt="PeriCloud Logo" className="w-full h-full object-contain brightness-0 invert" />
           </div>
           <AnimatePresence mode="wait">
             {!isCollapsed && (
@@ -72,7 +72,7 @@ export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProp
                 className="flex flex-col"
               >
                 <span className="text-lg font-semibold tracking-tight gradient-text-blue">
-                  CaveGuard
+                  PeriCloud
                 </span>
               </motion.div>
             )}

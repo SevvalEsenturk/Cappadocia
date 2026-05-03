@@ -19,7 +19,7 @@ export default function HomePage() {
       
       {/* Footer */}
       <footer className="py-12 bg-white border-t border-slate-100 text-center">
-        <p className="text-sm text-slate-400 font-medium tracking-wide">© 2026 CAVEGUARD MISSION CONTROL. TÜM HAKLARI SAKLIDIR.</p>
+        <p className="text-sm text-slate-400 font-medium tracking-wide">© 2026 PERICLOUD MISSION CONTROL. TÜM HAKLARI SAKLIDIR.</p>
         <p className="text-[10px] text-slate-300 mt-2 uppercase tracking-[0.2em]">Kapadokya Hackathon 2026 Projesi</p>
       </footer>
     </main>

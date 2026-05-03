@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'GEMINI_API_KEY tanımlı değil' }, { status: 500 });
     }
 
-    const prompt = `Sen CaveGuard adlı bir lojistik ve karbon yönetim sisteminin yapay zeka danışmanısın.
+    const prompt = `Sen PeriCloud adlı bir lojistik ve karbon yönetim sisteminin yapay zeka danışmanısın.
 Kapadokya'daki doğal yeraltı depolarından uluslararası ihracat yapılıyor.
 
 Aşağıdaki sevkiyat verilerini analiz et ve Türkçe olarak kısa, net, uygulanabilir optimizasyon önerileri ver.
