@@ -24,6 +24,11 @@ export default function LoginPage() {
         localStorage.setItem("userRole", "admin")
         localStorage.setItem("userName", "Sistem Yöneticisi")
         router.push("/dashboard")
+      } else if (username === "HasanBozkurt" && password === "test") {
+        localStorage.setItem("userRole", "demo")
+        localStorage.setItem("userName", "Hasan Bozkurt")
+        localStorage.setItem("demoStartTime", Date.now().toString())
+        router.push("/dashboard")
       } else if (username === "ahmetkapadokya" && password === "ahmet1") {
         localStorage.setItem("userRole", "user")
         localStorage.setItem("userName", "Ahmet Kapadokya")
@@ -143,6 +148,15 @@ export default function LoginPage() {
                   <div>
                     <p className="text-[11px] font-bold text-white">ahmetkapadokya / ahmet1</p>
                     <p className="text-[9px] text-emerald-400">👷 Saha Operatörü — Kısıtlı erişim</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/15">
+                <div className="flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-[10px] font-bold text-amber-400">H</span>
+                  <div>
+                    <p className="text-[11px] font-bold text-white">HasanBozkurt / test</p>
+                    <p className="text-[9px] text-amber-400">⚡ Demo Anomali Senaryosu — Hasan Bozkurt</p>
                   </div>
                 </div>
               </div>
