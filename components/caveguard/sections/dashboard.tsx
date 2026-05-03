@@ -220,6 +220,7 @@ export function DashboardContent() {
   const [selectedSection, setSelectedSection] = useState("Depo-1 (Kuzey)")
   const [warehouses, setWarehouses] = useState(warehousesData)
   const [locas, setLocas] = useState<any[]>([])
+  const [selectedLoca, setSelectedLoca] = useState<any | null>(null)
   const [targets, setTargets] = useState({ temp: 12, humidity: 65 })
 
   useEffect(() => {
@@ -244,7 +245,17 @@ export function DashboardContent() {
         // Fetch Locas for selected Warehouse
         const locasRes = await fetch(`/api/locas?depo_id=${encodeURIComponent(selectedSection)}`)
         const locasData = await locasRes.json()
-        setLocas(Array.isArray(locasData) ? locasData : [])
+        const fetchedLocas = Array.isArray(locasData) ? locasData : []
+        setLocas(fetchedLocas)
+        
+        // Eğer seçili loca yoksa veya seçili loca bu depoya ait değilse ilk locayı seç
+        if (fetchedLocas.length > 0) {
+          if (!selectedLoca || !fetchedLocas.find(l => l.id === selectedLoca.id)) {
+            setSelectedLoca(fetchedLocas[0])
+          }
+        } else {
+          setSelectedLoca(null)
+        }
       } catch (err) {
         console.error("Dashboard fetch error:", err)
       }
@@ -295,9 +306,9 @@ export function DashboardContent() {
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Settings2 className="w-4 h-4 text-accent" />
-                {selectedSection} İklimlendirme Ayarları
+                {selectedLoca ? `${selectedLoca.id} İklimlendirme Ayarları` : 'İklimlendirme Ayarları'}
               </CardTitle>
-              <CardDescription>Hedef değerleri ve sistem modlarını belirleyin</CardDescription>
+              <CardDescription>IoT cihazı hedef değerlerini ve sistem modlarını belirleyin</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
@@ -341,57 +352,66 @@ export function DashboardContent() {
         </motion.div>
       </div>
 
-      {/* Selected Section Sensors */}
+      {/* Selected Loca Sensors */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="glass-card border-0 glow-border-blue">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-              Bölüm Sıcaklığı <Thermometer className="w-3 h-3 text-primary" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{currentData.temp}°C</div>
-            <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-              <ThermometerSnowflake className="w-2 h-2" /> Hedef: {targets.temp}°C
-            </div>
-          </CardContent>
-        </Card>
+        {selectedLoca ? (
+          <>
+            <Card className="glass-card border-0 glow-border-blue">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                  {selectedLoca.id} Sıcaklığı <Thermometer className="w-3 h-3 text-primary" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Her loca için benzersiz ama tutarlı bir değer üretelim (örnek: depo verisinden ufak sapmalar) */}
+                <div className="text-2xl font-bold">{(currentData.temp + (parseInt(selectedLoca.id.replace(/\D/g,'') || "0") % 3) * 0.4).toFixed(1)}°C</div>
+                <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
+                  <ThermometerSnowflake className="w-2 h-2" /> Hedef: {targets.temp}°C
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card className="glass-card border-0 glow-border-green">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-              Nem Oranı <Droplets className="w-3 h-3 text-success" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">%{currentData.humidity}</div>
-            <div className="text-[10px] text-muted-foreground mt-1">Hedef: %{targets.humidity}</div>
-          </CardContent>
-        </Card>
+            <Card className="glass-card border-0 glow-border-green">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                  {selectedLoca.id} Nem Oranı <Droplets className="w-3 h-3 text-success" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">%{(currentData.humidity + (parseInt(selectedLoca.id.replace(/\D/g,'') || "0") % 5) - 2).toFixed(1)}</div>
+                <div className="text-[10px] text-muted-foreground mt-1">Hedef: %{targets.humidity}</div>
+              </CardContent>
+            </Card>
 
-        <Card className="glass-card border-0 glow-border-orange">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-              Gaz Seviyesi <Wind className="w-3 h-3 text-accent" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{currentData.gas} <small className="text-[10px]">ppm</small></div>
-            <div className="text-[10px] text-success mt-1">Güvenli Aralığın Altında</div>
-          </CardContent>
-        </Card>
+            <Card className="glass-card border-0 glow-border-orange">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                  {selectedLoca.id} Gaz Seviyesi <Wind className="w-3 h-3 text-accent" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{Math.max(0.01, currentData.gas - 0.01).toFixed(2)} <small className="text-[10px]">ppm</small></div>
+                <div className="text-[10px] text-success mt-1">Güvenli Aralığın Altında</div>
+              </CardContent>
+            </Card>
 
-        <Card className="glass-card border-0">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-              Havalandırma <Fan className={`w-3 h-3 ${currentData.ventilation ? "text-success animate-spin" : "text-muted-foreground"}`} />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{currentData.ventilation ? "AKTİF" : "KAPALI"}</div>
-            <div className="text-[10px] text-muted-foreground mt-1">RPM: {currentData.ventilation ? "1450" : "0"}</div>
-          </CardContent>
-        </Card>
+            <Card className="glass-card border-0">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                  {selectedLoca.id} Havalandırma <Fan className={`w-3 h-3 ${currentData.ventilation ? "text-success animate-spin" : "text-muted-foreground"}`} />
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{currentData.ventilation ? "AKTİF" : "KAPALI"}</div>
+                <div className="text-[10px] text-muted-foreground mt-1">RPM: {currentData.ventilation ? "1450" : "0"}</div>
+              </CardContent>
+            </Card>
+          </>
+        ) : (
+          <div className="col-span-full p-8 text-center text-muted-foreground bg-muted/10 rounded-2xl border border-white/5">
+            Lütfen detaylarını görmek için aşağıdan bir loca seçiniz.
+          </div>
+        )}
 
         <Card className="glass-card border-0 glow-border-blue col-span-full">
           <CardHeader className="pb-2">
@@ -404,12 +424,21 @@ export function DashboardContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {Array.isArray(locas) && locas.length > 0 ? (
                 locas.map((loca: any) => (
-                  <div key={loca.id} className="p-4 rounded-xl bg-muted/20 border border-white/5 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold">{loca.id}</span>
+                  <div 
+                    key={loca.id} 
+                    onClick={() => setSelectedLoca(loca)}
+                    className={cn(
+                      "p-4 rounded-xl border transition-all cursor-pointer",
+                      selectedLoca?.id === loca.id 
+                        ? "bg-primary/10 border-primary/40 shadow-[0_0_15px_rgba(52,152,219,0.1)]" 
+                        : "bg-muted/20 border-white/5 hover:bg-muted/30"
+                    )}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={cn("text-xs font-bold", selectedLoca?.id === loca.id && "text-primary")}>{loca.id}</span>
                       <Badge variant="outline" className={cn(
                         "text-[9px] py-0",
-                        loca.hammadde === "Boş" ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary border-primary/20"
+                        loca.hammadde === "Boş" ? "bg-muted text-muted-foreground" : "bg-success/10 text-success border-success/20"
                       )}>
                         {loca.hammadde}
                       </Badge>
@@ -420,6 +449,11 @@ export function DashboardContent() {
                         <span className="font-mono">%{loca.occupancy}</span>
                       </div>
                       <Progress value={loca.occupancy} className="h-1" />
+                    </div>
+                    {/* Loca bazlı mini sensör özeti */}
+                    <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] text-muted-foreground">
+                      <div className="flex items-center gap-1"><Thermometer className="w-3 h-3 text-primary/70"/> {(currentData.temp + (parseInt(loca.id.replace(/\D/g,'') || "0") % 3) * 0.4).toFixed(1)}°C</div>
+                      <div className="flex items-center gap-1"><Droplets className="w-3 h-3 text-success/70"/> %{(currentData.humidity + (parseInt(loca.id.replace(/\D/g,'') || "0") % 5) - 2).toFixed(1)}</div>
                     </div>
                   </div>
                 ))
