@@ -11,6 +11,7 @@ import { SettingsContent } from "./sections/settings"
 import { Badge } from "@/components/ui/badge"
 import { DollarSign, Euro, RefreshCcw, Bell, User, X } from "lucide-react"
 import { I18nProvider, useI18n } from "@/lib/i18n"
+import { UserAvatar } from "@/components/ui/user-avatar"
 
 export function PeriCloudLayout() {
   return (
@@ -210,9 +211,10 @@ function PeriCloudInner() {
                 <p className="text-[11px] font-bold">{userName}</p>
                 <p className="text-[9px] text-muted-foreground">{userRole === "admin" ? t("header.sysAdmin") : t("header.fieldOp")}</p>
               </div>
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center border border-white/10">
-                <User className="w-5 h-5 text-white" />
-              </div>
+              <UserAvatar 
+                username={userName.replace(/\s/g, '')} 
+                className="w-9 h-9" 
+              />
             </div>
           </div>
         </header>

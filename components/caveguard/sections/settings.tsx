@@ -23,7 +23,8 @@ import {
   Bot,
   Thermometer,
   BellRing,
-  BellOff
+  BellOff,
+  Camera
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -39,6 +40,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { UserAvatar } from "@/components/ui/user-avatar"
+import { toast } from "sonner"
 
 export function SettingsContent() {
   const { t, lang, setLang } = useI18n()
@@ -64,6 +67,12 @@ export function SettingsContent() {
     maxRobotSpeed: "1.2",
     tempAlertThreshold: "18"
   })
+
+  // Profile Upload State
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -108,6 +117,57 @@ export function SettingsContent() {
     }, 1000)
   }
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error(t("set.avatarDesc"))
+        return
+      }
+      setSelectedFile(file)
+      setPreviewUrl(URL.createObjectURL(file))
+    }
+  }
+
+  const handleUpload = async () => {
+    if (!selectedFile) return
+    setIsUploading(true)
+    const username = localStorage.getItem("userName")?.replace(/\s/g, '') || "HasanBozkurt"
+
+    try {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      formData.append('username', username)
+
+      const response = await fetch('/api/user/avatar', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json()
+        if (data.success) {
+          toast.success(t("set.uploadSuccess"))
+          setSelectedFile(null)
+          setPreviewUrl(null)
+          window.dispatchEvent(new CustomEvent('avatar-updated', { 
+            detail: { username, avatarUrl: data.avatar_url } 
+          }))
+        } else {
+          toast.error(data.error || t("set.uploadError"))
+          console.error("Upload error details:", data)
+        }
+      } else {
+        toast.error(t("set.uploadError"))
+      }
+    } catch (error) {
+      toast.error(t("set.uploadError"))
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 lg:p-8 space-y-6 relative">
       {/* Bildirim Toast'ları — ekranın sağ üstünde */}
@@ -134,29 +194,79 @@ export function SettingsContent() {
       </div>
 
       {/* Kullanıcı Bilgi Çubuğu */}
-      <div className="flex items-center justify-between p-4 rounded-2xl bg-muted/20 border border-white/5">
-        <div className="flex items-center gap-4">
-          <div className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center border",
-            isAdmin ? "bg-primary/20 border-primary/30" : "bg-emerald-500/20 border-emerald-500/30"
-          )}>
-            <User className={cn("w-6 h-6", isAdmin ? "text-primary" : "text-emerald-500")} />
-          </div>
-          <div>
-            <p className="text-base font-bold">{userName}</p>
-            <Badge variant="outline" className={cn("text-[9px] uppercase tracking-widest",
-              isAdmin ? "text-primary border-primary/30 bg-primary/5" : "text-emerald-400 border-emerald-400/30 bg-emerald-400/5"
-            )}>
-              {isAdmin ? t("set.sysAdmin") : t("set.fieldOp")}
-            </Badge>
-          </div>
-        </div>
-        {!isAdmin && (
-          <div className="hidden sm:flex items-center gap-2 p-2 px-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
-            <span className="text-[10px] text-amber-400 font-bold">{t("set.adminOnlyWarn")}</span>
-          </div>
-        )}
+      <div className="flex flex-col lg:flex-row gap-6">
+        <Card className="glass-card border-0 glow-border-blue flex-1">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-6">
+                <div className="relative group">
+                  <UserAvatar 
+                    username={localStorage.getItem("userName")?.replace(/\s/g, '') || "HasanBozkurt"} 
+                    className="w-20 h-20 border-2 border-primary/20"
+                  />
+                  {previewUrl && (
+                    <div className="absolute inset-0 rounded-full overflow-hidden z-10">
+                      <img src={previewUrl} className="w-full h-full object-cover" alt="Preview" />
+                    </div>
+                  )}
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleFileChange}
+                  />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">{userName}</h2>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline" className={cn("text-[10px] uppercase tracking-widest",
+                      isAdmin ? "text-primary border-primary/30 bg-primary/5" : "text-emerald-400 border-emerald-400/30 bg-emerald-400/5"
+                    )}>
+                      {isAdmin ? t("set.sysAdmin") : t("set.fieldOp")}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col items-end gap-3">
+                <div className="flex flex-wrap justify-end gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-primary/30 hover:bg-primary/5 text-xs font-bold py-5 px-5 rounded-xl transition-all hover:scale-105 active:scale-95"
+                  >
+                    <Camera className="w-4 h-4 mr-2 text-primary" />
+                    {t("set.changePhoto")}
+                  </Button>
+
+                  <AnimatePresence>
+                    {selectedFile && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9, x: 10 }}
+                        animate={{ opacity: 1, scale: 1, x: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, x: 10 }}
+                      >
+                        <Button 
+                          size="sm" 
+                          onClick={handleUpload} 
+                          disabled={isUploading}
+                          className="bg-primary hover:bg-primary/90 text-xs font-bold py-5 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
+                        >
+                          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                          {isUploading ? t("set.uploading") : t("set.uploadBtn")}
+                        </Button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                <p className="text-[10px] text-muted-foreground text-right max-w-[200px]">
+                  {t("set.avatarDesc")}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

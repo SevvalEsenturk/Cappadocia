@@ -66,9 +66,48 @@ export async function GET() {
       )
     `;
 
-    // 5. Create Logs Table
+    // 5. Create/Update Profiles Table
     await sql`
-      CREATE TABLE system_logs (
+      CREATE TABLE IF NOT EXISTS profiles (
+        id UUID PRIMARY KEY,
+        username TEXT UNIQUE,
+        full_name TEXT,
+        avatar_url TEXT,
+        avatar_path TEXT,
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        email TEXT,
+        role TEXT DEFAULT 'user',
+        role_label TEXT,
+        notification_critical BOOLEAN DEFAULT true,
+        notification_shipping BOOLEAN DEFAULT true,
+        dark_mode BOOLEAN DEFAULT false,
+        system_language TEXT DEFAULT 'tr',
+        log_retention_days INTEGER DEFAULT 30
+      )
+    `;
+
+    // Ensure columns exist if table was already there
+    await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS username TEXT`;
+    await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS full_name TEXT`;
+    await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT`;
+    await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_path TEXT`;
+    await sql`ALTER TABLE profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW()`;
+
+    // Seed/Update HasanBozkurt
+    // We use the existing UUID from the DB check if possible, or a fallback
+    const hasanId = 'b82e2887-1907-4615-a810-295a7081bae0'; 
+    await sql`
+      INSERT INTO profiles (id, username, full_name, role_label, email) 
+      VALUES (${hasanId}, 'HasanBozkurt', 'Hasan Bozkurt', 'SAHA OPERATÖRÜ', 'hasan@caveguard.com')
+      ON CONFLICT (id) DO UPDATE SET 
+        username = EXCLUDED.username,
+        full_name = EXCLUDED.full_name,
+        role_label = EXCLUDED.role_label
+    `;
+
+    // 6. Create Logs Table
+    await sql`
+      CREATE TABLE IF NOT EXISTS system_logs (
         id SERIAL PRIMARY KEY,
         level TEXT,
         source TEXT,
@@ -77,7 +116,7 @@ export async function GET() {
       )
     `;
 
-    // 6. Seed Data - Sensors
+    // 7. Seed Data - Sensors
     await sql`
       INSERT INTO sensors (depo_id, temp, humidity, gas) VALUES 
       ('Depo-1 (Kuzey)', 12.5, 62, 140),
@@ -85,7 +124,7 @@ export async function GET() {
       ('Depo-3 (Batı)', 13.1, 60, 150)
     `;
 
-    // 7. Seed Data - Robots
+    // 8. Seed Data - Robots
     await sql`
       INSERT INTO robots (id, status, battery, location, task) VALUES 
       ('robot-alpha', 'active', 78, 'Depo-1 / Loca-1', 'Envanter Tarama'),
@@ -93,7 +132,7 @@ export async function GET() {
       ('robot-gamma', 'active', 91, 'Depo-2 / Loca-3', 'Palet Taşıma')
     `;
 
-    // 8. Seed Data - Locas
+    // 9. Seed Data - Locas
     await sql`
       INSERT INTO locas (id, depo_id, hammadde, occupancy) VALUES 
       ('L1-1', 'Depo-1 (Kuzey)', 'Patates', 85),
@@ -108,6 +147,15 @@ export async function GET() {
       ('L3-2', 'Depo-3 (Batı)', 'Elma', 80),
       ('L3-3', 'Depo-3 (Batı)', 'Armut', 20),
       ('L3-4', 'Depo-3 (Batı)', 'Boş', 0)
+    `;
+
+    // 10. Seed Data - Profiles
+    await sql`
+      INSERT INTO profiles (id, username, full_name) VALUES 
+      ('admin-uuid', 'admin', 'Sistem Yöneticisi'),
+      ('hasan-uuid', 'HasanBozkurt', 'Hasan Bozkurt'),
+      ('ahmet-uuid', 'ahmetkapadokya', 'Ahmet Kapadokya')
+      ON CONFLICT (id) DO NOTHING
     `;
 
     return NextResponse.json({ 
