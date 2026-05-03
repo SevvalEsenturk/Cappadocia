@@ -23,6 +23,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 // Mock data for Warehouses and their specific Locations (Locas)
 const warehousesData = {
@@ -61,7 +62,8 @@ const warehousesData = {
   }
 }
 
-const environmentHistory = [
+// Static environment history (moved inside component for demo logic)
+const staticHistory = [
   { time: "00:00", temperature: 12.2, humidity: 68 },
   { time: "04:00", temperature: 12.5, humidity: 67 },
   { time: "08:00", temperature: 12.8, humidity: 65 },
@@ -221,8 +223,33 @@ export function DashboardContent() {
   const [warehouses, setWarehouses] = useState(warehousesData)
   const [locas, setLocas] = useState<any[]>([])
   const [targets, setTargets] = useState({ temp: 12, humidity: 65 })
+  
+  // Demo State
+  const [isDemo, setIsDemo] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [demoAlerts, setDemoAlerts] = useState<string[]>([])
 
   useEffect(() => {
+    const role = localStorage.getItem("userRole")
+    const startTime = localStorage.getItem("demoStartTime")
+    
+    if (role === "demo" && startTime) {
+      setIsDemo(true)
+      setSelectedSection("Depo-1 (Kuzey)")
+      
+      const interval = setInterval(() => {
+        const now = Date.now()
+        const diff = Math.floor((now - parseInt(startTime)) / 1000)
+        setElapsedSeconds(diff)
+      }, 1000)
+      
+      return () => clearInterval(interval)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isDemo) return; // Skip real fetching in demo mode
+
     const fetchData = async () => {
       try {
         // Fetch Sensors
@@ -254,7 +281,101 @@ export function DashboardContent() {
     return () => clearInterval(interval)
   }, [selectedSection])
 
-  const currentData = warehouses[selectedSection as keyof typeof warehouses]
+  // Calculate Demo Data
+  const getDemoData = () => {
+    const seconds = elapsedSeconds
+    
+    let temp = 8.4
+    let humidity = 91
+    let gas = 780
+    let vibration = "Normal"
+    let status = "Optimal"
+    let risk = "NORMAL"
+
+    if (seconds < 10) {
+      const p = seconds / 10
+      temp = 8.4 + (9.1 - 8.4) * p
+      humidity = 91 + (93 - 91) * p
+      gas = 780 + (950 - 780) * p
+    } else if (seconds < 20) {
+      const p = (seconds - 10) / 10
+      temp = 9.1 + (9.8 - 9.1) * p
+      humidity = 93 + (95 - 93) * p
+      gas = 950 + (1180 - 950) * p
+    } else if (seconds < 30) {
+      const p = (seconds - 20) / 10
+      temp = 9.8 + (10.8 - 9.8) * p
+      humidity = 95 + (96 - 95) * p
+      gas = 1180 + (1320 - 1180) * p
+      vibration = "Hafif"
+      status = "Dikkat"
+      risk = "WARNING"
+    } else {
+      temp = 10.8
+      humidity = 96
+      gas = 1320
+      vibration = "Yüksek"
+      status = "Kritik"
+      risk = "CRITICAL"
+    }
+
+    return { temp: parseFloat(temp.toFixed(1)), humidity: Math.round(humidity), gas: Math.round(gas), vibration, status, risk }
+  }
+
+  const demoData = isDemo ? getDemoData() : null
+  const currentData = isDemo ? {
+    ...warehousesData["Depo-1 (Kuzey)"],
+    temp: demoData!.temp,
+    humidity: demoData!.humidity,
+    gas: demoData!.gas,
+    status: demoData!.status,
+    vibration: demoData!.vibration
+  } : warehouses[selectedSection as keyof typeof warehouses]
+
+  // Demo alerts logic
+  useEffect(() => {
+    if (!isDemo) return
+    const alerts = []
+    const seconds = elapsedSeconds
+    
+    if (seconds === 15) {
+      toast.warning("Sıcaklık Değerleri Yükseliyor!", {
+        description: "Kuzey Deposu / Loca 2 için sıcaklık ideal aralığın dışına çıkmaya başladı."
+      })
+    }
+    if (seconds === 21) {
+      toast.error("KRİTİK: Yüksek Gaz Seviyesi!", {
+        description: "CO2 seviyesi 1200 ppm eşiğini aştı. Havalandırma sistemini kontrol edin."
+      })
+    }
+    if (seconds === 25) {
+      toast.error("KRİTİK: Yüksek Nem Tespit Edildi!", {
+        description: "Nem oranı %95 üzerine çıktı. Yoğuşma ve çürüme riski mevcut."
+      })
+    }
+
+    if (seconds >= 21) alerts.push("Kuzey Deposu / Loca 2’de CO₂ seviyesi 1200 ppm kritik eşiğini aşmıştır. Havalandırma kontrol edilmelidir.")
+    if (seconds >= 15) alerts.push("Kuzey Deposu / Loca 2’de sıcaklık ideal aralığın üzerine çıkmıştır. Filizlenme ve kalite kaybı riski artabilir.")
+    if (seconds >= 25) alerts.push("Kuzey Deposu / Loca 2’de yüksek nem nedeniyle kondensasyon riski oluşmuştur. Çürüme riski artabilir.")
+    if (seconds >= 28) alerts.push("Kuzey Deposu / Loca 2’de olağan dışı titreşim algılanmıştır. Yapısal hareket veya dış müdahale kontrol edilmelidir.")
+    
+    setDemoAlerts(alerts)
+  }, [elapsedSeconds, isDemo])
+
+  // Override locas for demo
+  const displayLocas = isDemo ? [
+    { id: "L-101", hammadde: "Patates", occupancy: 85 },
+    { id: "Loca 2", hammadde: "Patates", occupancy: 92 },
+    { id: "L-103", hammadde: "Soğan", occupancy: 40 },
+    { id: "L-104", hammadde: "Boş", occupancy: 0 }
+  ] : locas
+
+  const environmentHistory = isDemo ? [
+    { time: "T-3", temperature: 8.4, humidity: 91 },
+    { time: "T-2", temperature: 9.1, humidity: 93 },
+    { time: "T-1", temperature: 9.8, humidity: 95 },
+    { time: "Şimdi", temperature: currentData.temp, humidity: currentData.humidity },
+  ] : staticHistory
 
   return (
     <motion.div
@@ -273,12 +394,23 @@ export function DashboardContent() {
             Bölgesel sensör verileri ve otonom iklimlendirme kontrolü
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {isDemo && (
+            <Badge className="bg-amber-500 text-white border-amber-400 py-1.5 px-3 animate-pulse">
+              <AlertCircle className="w-3 h-3 mr-2" /> Demo Anomali Senaryosu Aktif
+            </Badge>
+          )}
           <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 py-1.5 px-3">
             <MapIcon className="w-3 h-3 mr-2" /> Bölge: Kapadokya-1
           </Badge>
-          <Badge variant="outline" className="bg-success/5 text-success border-success/20 py-1.5 px-3">
-            <Activity className="w-3 h-3 mr-2" /> Sistem: Stabil
+          <Badge variant="outline" className={cn(
+            "py-1.5 px-3",
+            isDemo && demoData?.risk === "CRITICAL" ? "bg-red-500/10 text-red-500 border-red-500/20" :
+            isDemo && demoData?.risk === "WARNING" ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+            "bg-success/5 text-success border-success/20"
+          )}>
+            <Activity className={cn("w-3 h-3 mr-2", isDemo && demoData?.risk !== "NORMAL" && "animate-pulse")} /> 
+            Sistem: {isDemo ? demoData?.risk : "Stabil"}
           </Badge>
         </div>
       </motion.div>
@@ -357,29 +489,64 @@ export function DashboardContent() {
           </CardContent>
         </Card>
 
-        <Card className="glass-card border-0 glow-border-green">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-              Nem Oranı <Droplets className="w-3 h-3 text-success" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">%{currentData.humidity}</div>
-            <div className="text-[10px] text-muted-foreground mt-1">Hedef: %{targets.humidity}</div>
-          </CardContent>
-        </Card>
+        <motion.div
+          animate={isDemo && demoData?.risk === "CRITICAL" ? { 
+            scale: [1, 1.02, 1],
+            borderColor: ["rgba(34, 197, 94, 0.2)", "rgba(239, 68, 68, 0.5)", "rgba(34, 197, 94, 0.2)"] 
+          } : {}}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+          className="w-full"
+        >
+          <Card className={cn(
+            "glass-card border-0 glow-border-green h-full",
+            isDemo && demoData?.risk === "CRITICAL" && "bg-red-500/5"
+          )}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                Nem Oranı <Droplets className={cn("w-3 h-3", isDemo && demoData?.risk === "CRITICAL" ? "text-red-500" : "text-success")} />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={cn("text-2xl font-bold", isDemo && demoData?.risk === "CRITICAL" && "text-red-500")}>
+                %{currentData.humidity}
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-1">Hedef: %{targets.humidity}</div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        <Card className="glass-card border-0 glow-border-orange">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
-              Gaz Seviyesi <Wind className="w-3 h-3 text-accent" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{currentData.gas} <small className="text-[10px]">ppm</small></div>
-            <div className="text-[10px] text-success mt-1">Güvenli Aralığın Altında</div>
-          </CardContent>
-        </Card>
+        <motion.div
+          animate={isDemo && demoData?.risk === "CRITICAL" ? { 
+            scale: [1, 1.02, 1],
+            borderColor: ["rgba(249, 115, 22, 0.2)", "rgba(239, 68, 68, 0.5)", "rgba(249, 115, 22, 0.2)"] 
+          } : {}}
+          transition={{ repeat: Infinity, duration: 1.5 }}
+          className="w-full"
+        >
+          <Card className={cn(
+            "glass-card border-0 glow-border-orange h-full",
+            isDemo && demoData?.risk === "CRITICAL" && "bg-red-500/5"
+          )}>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-xs font-medium text-muted-foreground flex items-center justify-between">
+                Gaz Seviyesi <Wind className={cn("w-3 h-3", isDemo && demoData?.risk === "CRITICAL" ? "text-red-500" : "text-accent")} />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={cn("text-2xl font-bold", isDemo && demoData?.risk === "CRITICAL" && "text-red-500")}>
+                {currentData.gas} <small className="text-[10px]">ppm</small>
+              </div>
+              <div className={cn(
+                "text-[10px] mt-1",
+                isDemo && demoData?.risk === "CRITICAL" ? "text-red-500 font-bold" :
+                isDemo && demoData?.risk === "WARNING" ? "text-amber-500" : "text-success"
+              )}>
+                {isDemo && demoData?.risk === "CRITICAL" ? "KRİTİK EŞİK AŞILDI" : 
+                 isDemo && demoData?.risk === "WARNING" ? "Dikkat: Limit Yakın" : "Güvenli Aralığın Altında"}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
         <Card className="glass-card border-0">
           <CardHeader className="pb-2">
@@ -402,9 +569,14 @@ export function DashboardContent() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Array.isArray(locas) && locas.length > 0 ? (
-                locas.map((loca: any) => (
-                  <div key={loca.id} className="p-4 rounded-xl bg-muted/20 border border-white/5 space-y-3">
+              {Array.isArray(displayLocas) && displayLocas.length > 0 ? (
+                displayLocas.map((loca: any) => (
+                  <div key={loca.id} className={cn(
+                    "p-4 rounded-xl border space-y-3 transition-all",
+                    isDemo && loca.id === "Loca 2" && demoData?.risk === "CRITICAL" ? "bg-red-500/10 border-red-500/30 animate-pulse" :
+                    isDemo && loca.id === "Loca 2" && demoData?.risk === "WARNING" ? "bg-amber-500/10 border-amber-500/30" :
+                    "bg-muted/20 border-white/5"
+                  )}>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold">{loca.id}</span>
                       <Badge variant="outline" className={cn(
@@ -460,6 +632,44 @@ export function DashboardContent() {
           </CardContent>
         </Card>
       </motion.div>
+      {/* Demo Alerts Section */}
+      <AnimatePresence>
+        {isDemo && demoAlerts.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ 
+              opacity: [1, 0.5, 1],
+              height: "auto"
+            }}
+            transition={{
+              opacity: { repeat: Infinity, duration: 1.5, ease: "easeInOut" },
+              height: { duration: 0.3 }
+            }}
+            className="mt-6"
+          >
+            <Card className="glass-card border-red-500/30 bg-red-500/5">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-bold flex items-center gap-2 text-red-500">
+                  <AlertCircle className="w-3 h-3" /> KRİTİK SİSTEM UYARILARI
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {demoAlerts.map((alert, i) => (
+                  <motion.div 
+                    key={i}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="text-[11px] p-2 rounded-lg bg-red-500/10 border border-red-500/10 text-red-200 flex items-start gap-2"
+                  >
+                    <div className="w-1 h-1 rounded-full bg-red-500 mt-1.5 shrink-0" />
+                    {alert}
+                  </motion.div>
+                ))}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
