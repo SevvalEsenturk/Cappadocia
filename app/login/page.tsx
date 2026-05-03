@@ -52,7 +52,8 @@ export default function LoginPage() {
           <div className="flex flex-col items-center mb-10">
             <Link href="/" className="mb-6 group">
               <div className="w-32 h-32 flex items-center justify-center group-hover:scale-105 transition-transform duration-500 overflow-hidden">
-                <img src="/logo.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl" />
+                <img src="/logo_black.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl dark:hidden" />
+                <img src="/logo.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl hidden dark:block" />
               </div>
             </Link>
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">PeriCloud</h1>

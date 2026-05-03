@@ -18,7 +18,8 @@ export function Navbar() {
       <nav className="max-w-5xl mx-auto flex items-center justify-between h-16 px-6 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm">
         <Link href="/" className="flex items-center gap-1 group">
           <div className="w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
-            <img src="/logo.png" alt="PeriCloud Logo" className="w-full h-full object-contain" />
+            <img src="/logo_black.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl dark:hidden" />
+            <img src="/logo.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl hidden dark:block" />
           </div>
           <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">PeriCloud</span>
         </Link>
