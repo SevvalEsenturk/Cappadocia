@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { CaveGuardSidebar } from "./sidebar"
+import { PeriCloudSidebar } from "./sidebar"
 import { DashboardContent } from "./sections/dashboard"
 import { ShipmentsContent } from "./sections/shipments"
 import { RobotsContent } from "./sections/robots"
@@ -12,10 +12,10 @@ import { Badge } from "@/components/ui/badge"
 import { DollarSign, Euro, RefreshCcw, Bell, User, X } from "lucide-react"
 import { I18nProvider, useI18n } from "@/lib/i18n"
 
-export function CaveGuardLayout() {
+export function PeriCloudLayout() {
   return (
     <I18nProvider>
-      <CaveGuardInner />
+      <PeriCloudInner />
     </I18nProvider>
   )
 }
@@ -29,7 +29,7 @@ interface Notification {
   read: boolean
 }
 
-function CaveGuardInner() {
+function PeriCloudInner() {
   const { t } = useI18n()
   const [activeSection, setActiveSection] = useState("dashboard")
   const [exchangeRates, setExchangeRates] = useState({ USD: 32.45, EUR: 35.12 })
@@ -104,7 +104,7 @@ function CaveGuardInner() {
 
   return (
     <div className="flex h-screen overflow-hidden topo-pattern bg-background">
-      <CaveGuardSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+      <PeriCloudSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
       
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Global Header */}

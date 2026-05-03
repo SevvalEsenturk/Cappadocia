@@ -5,7 +5,7 @@ import { Star } from "lucide-react"
 
 const testimonials = [
   {
-    text: "CaveGuard ile operasyonel verimliliğimiz %40 arttı. Otonom robot takibi sayesinde depo yönetimi çok daha kolay.",
+    text: "PeriCloud ile operasyonel verimliliğimiz %40 arttı. Otonom robot takibi sayesinde depo yönetimi çok daha kolay.",
     name: "Ahmet Yılmaz",
     role: "Operasyon Direktörü, TurkCargo",
   },
@@ -27,7 +27,7 @@ export function TestimonialsSection() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-4">Müşteri Yorumları</h2>
-          <p className="text-slate-500 max-w-lg mx-auto">Sektör liderlerinin CaveGuard hakkındaki görüşleri.</p>
+          <p className="text-slate-500 max-w-lg mx-auto">Sektör liderlerinin PeriCloud hakkındaki görüşleri.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

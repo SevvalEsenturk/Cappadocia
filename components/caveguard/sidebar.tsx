@@ -40,7 +40,7 @@ const navItems = [
   { id: "settings", labelKey: "nav.settings", icon: Settings },
 ]
 
-export function CaveGuardSidebar({ activeSection, onSectionChange }: SidebarProps) {
+export function PeriCloudSidebar({ activeSection, onSectionChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)

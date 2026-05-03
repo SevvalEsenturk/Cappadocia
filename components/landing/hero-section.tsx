@@ -41,7 +41,7 @@ export function HeroSection() {
           transition={{ delay: 0.2 }}
           className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          CaveGuard, Kapadokya'nın doğal mağara depolarını IoT sensörler ve otonom robotlarla modernize eden dünyanın ilk akıllı doğal lojistik platformudur.
+          PeriCloud, Kapadokya'nın doğal mağara depolarını IoT sensörler ve otonom robotlarla modernize eden dünyanın ilk akıllı doğal lojistik platformudur.
         </motion.p>
 
         <motion.div

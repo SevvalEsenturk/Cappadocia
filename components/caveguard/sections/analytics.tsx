@@ -41,11 +41,11 @@ const energySavingsData = [
 
 // 2. AB CBAM (Karbon Vergisi) Karşılaştırma Verisi (Maliyet €)
 const cbamCostData = [
-  { dest: "Almanya", standartVergi: 4200, caveGuardVergi: 0 },
-  { dest: "Fransa", standartVergi: 3800, caveGuardVergi: 0 },
-  { dest: "Hollanda", standartVergi: 5100, caveGuardVergi: 450 },
-  { dest: "İtalya", standartVergi: 2900, caveGuardVergi: 0 },
-  { dest: "İspanya", standartVergi: 3400, caveGuardVergi: 120 },
+  { dest: "Almanya", standartVergi: 4200, periCloudVergi: 0 },
+  { dest: "Fransa", standartVergi: 3800, periCloudVergi: 0 },
+  { dest: "Hollanda", standartVergi: 5100, periCloudVergi: 450 },
+  { dest: "İtalya", standartVergi: 2900, periCloudVergi: 0 },
+  { dest: "İspanya", standartVergi: 3400, periCloudVergi: 120 },
 ]
 
 // 3. Gemma 3 AI Karar Dağılımı (Lojistik Modu Önerileri)
@@ -188,7 +188,7 @@ export function AnalyticsContent() {
                 AB CBAM (Karbon Vergisi) Yükü Karşılaştırması
               </CardTitle>
               <CardDescription className="text-[11px]">
-                Hedef ülkelere ihracatta Standart Depolama vs CaveGuard entegrasyonu kaynaklı vergi maliyetleri (€)
+                Hedef ülkelere ihracatta Standart Depolama vs PeriCloud entegrasyonu kaynaklı vergi maliyetleri (€)
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -229,8 +229,8 @@ export function AnalyticsContent() {
                       maxBarSize={40}
                     />
                     <Bar
-                      dataKey="caveGuardVergi"
-                      name="CaveGuard İhracat Vergisi (€)"
+                      dataKey="periCloudVergi"
+                      name="PeriCloud İhracat Vergisi (€)"
                       fill="oklch(0.65 0.18 155)"
                       radius={[4, 4, 0, 0]}
                       maxBarSize={40}
@@ -352,7 +352,7 @@ export function AnalyticsContent() {
                     <Area 
                       type="monotone" 
                       dataKey="tasarruf" 
-                      name="CaveGuard Net Enerji Tasarrufu" 
+                      name="PeriCloud Net Enerji Tasarrufu" 
                       stroke="oklch(0.6 0.15 230)" 
                       strokeWidth={3}
                       fillOpacity={1} 

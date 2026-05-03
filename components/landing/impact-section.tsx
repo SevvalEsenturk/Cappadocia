@@ -21,7 +21,7 @@ export function ImpactSection() {
         >
           <p className="text-sm font-bold text-blue-600 uppercase tracking-widest mb-4">Etkimiz</p>
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-            Rakamlarla CaveGuard Gücü
+            Rakamlarla PeriCloud Gücü
           </h2>
           <p className="text-slate-500 max-w-lg mx-auto">
             Kapadokya'nın doğal yapısını korurken, teknolojinin sınırlarını zorlayan verimlilik değerleri.
@@ -57,7 +57,7 @@ export function ImpactSection() {
           viewport={{ once: true }}
           className="mt-20 pt-12 border-t border-slate-100 text-center"
         >
-          <p className="text-sm text-slate-400 mb-8 font-bold uppercase tracking-widest">Sektörün Öncüleri CaveGuard Kullanıyor</p>
+          <p className="text-sm text-slate-400 mb-8 font-bold uppercase tracking-widest">Sektörün Öncüleri PeriCloud Kullanıyor</p>
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all">
             {["Kapadokya Lojistik", "TurkCargo", "EcoTrans", "SmartPort", "AnadoluFilo"].map((partner) => (
               <span key={partner} className="text-xl font-black text-slate-300">{partner}</span>

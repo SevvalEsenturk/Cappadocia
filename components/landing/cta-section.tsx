@@ -20,7 +20,7 @@ export function CtaSection() {
             Lojistik Operasyonlarınızı Geleceğe Taşıyın
           </h2>
           <p className="text-slate-400 text-lg mb-10 max-w-xl">
-            Kapadokya'nın doğal depolama gücünü CaveGuard teknolojisi ile birleştirin. Bugün ücretsiz bir demo planlayın.
+            Kapadokya'nın doğal depolama gücünü PeriCloud teknolojisi ile birleştirin. Bugün ücretsiz bir demo planlayın.
           </p>
           <Link
             href="/login"

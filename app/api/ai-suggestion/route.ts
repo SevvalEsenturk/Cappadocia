@@ -3,13 +3,19 @@ import { NextResponse } from 'next/server';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { distance, carbon, priceTRY, priceUSD, destName, weight, transportMode, cbamCost, cbamGrade, cbamCertificates } = body;
+    const { distance, carbon, priceTRY, priceUSD, destName, weight, transportMode, cbamCost, cbamGrade } = body;
 
+    // Ortam değişkenini kontrol et
     const apiKey = process.env.GEMINI_API_KEY;
+    
     if (!apiKey) {
-      console.error('GEMINI_API_KEY ortam değişkeni tanımlı değil');
-      return NextResponse.json({ error: 'GEMINI_API_KEY tanımlı değil' }, { status: 500 });
+      console.error('HATA: GEMINI_API_KEY ortam değişkeni tanımlı değil!');
+      return NextResponse.json({ 
+        error: 'API Anahtarı Eksik. Lütfen .env.local dosyasını kontrol edin ve sunucuyu yeniden başlatın.' 
+      }, { status: 500 });
     }
+
+    console.log(`API Key kontrolü: ${apiKey.substring(0, 5)}...${apiKey.substring(apiKey.length - 4)}`);
 
     const prompt = `Sen PeriCloud adlı akıllı lojistik ve karbon yönetim sisteminin uzman yapay zeka danışmanısın (Gemma 3 27B). 
 Kapadokya'daki doğal yeraltı depolarından uluslararası ihracat yapan bir kullanıcıya stratejik öneriler vereceksin.
@@ -35,22 +41,19 @@ KURALLAR:
 - Teknik, güven verici ve kısa bir dil kullan (max 5 madde).
 - markdown formatı kullanma, sadece düz metin ve emojiler.`;
 
-    // Gemma 3 27B is the primary target for this project
+    // Sadece Gemma modelleri kullanılacak
     const models = [
       'gemma-3-27b',
       'gemma-3-27b-it',
       'gemma-3-12b',
-      'gemma-3-4b',
-      'gemini-2.0-flash-exp',
-      'gemini-2.0-flash',
-      'gemini-1.5-flash'
+      'gemma-3-4b'
     ];
 
     let lastError = '';
 
     for (const model of models) {
       try {
-        console.log(`Denenen model: ${model}`);
+        console.log(`Denenen Gemma modeli: ${model}`);
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
           {
@@ -70,7 +73,7 @@ KURALLAR:
           const data = await response.json();
           const aiText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
           if (aiText) {
-            console.log(`Başarılı model: ${model}`);
+            console.log(`Başarılı Gemma modeli: ${model}`);
             return NextResponse.json({ 
               suggestion: aiText,
               modelUsed: model 
@@ -87,8 +90,10 @@ KURALLAR:
       }
     }
 
-    console.error('Tüm modeller başarısız. Son hata:', lastError);
-    return NextResponse.json({ error: `AI Servisi şu an meşgul. Lütfen tekrar deneyin.` }, { status: 500 });
+    return NextResponse.json({ 
+      error: `Gemma API şu an meşgul veya ulaşılamıyor. Lütfen API anahtarınızı ve internetinizi kontrol edin.` 
+    }, { status: 500 });
+
   } catch (error) {
     console.error('AI Suggestion Error:', error);
     return NextResponse.json({ error: `Sunucu hatası: ${error}` }, { status: 500 });

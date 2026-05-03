@@ -1,5 +1,5 @@
 /**
- * CaveGuard External API Integration
+ * PeriCloud External API Integration
  * Handles Nominatim (Geocoding), OpenRouteService (Routing), and TCMB (Exchange Rates)
  */
 
@@ -7,7 +7,7 @@ export async function getCoordinates(query: string) {
   try {
     const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, {
       headers: {
-        'User-Agent': 'CaveGuard-Hackathon-App'
+        'User-Agent': 'PeriCloud-Hackathon-App'
       }
     });
     const data = await response.json();
