@@ -18,8 +18,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'CaveGuard | Kapadokya 2026',
-  description: 'Autonomous logistics, real-time sensor data, and carbon footprint tracking for Cappadocia natural cave storage management.',
+  title: 'PeriCloud | Kapadokya 2026',
+  description: 'Kapadokya Doğal Depo Yönetimi ve Karbon Takip Sistemi',
   generator: 'v0.app',
   icons: {
     icon: [

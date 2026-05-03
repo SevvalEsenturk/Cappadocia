@@ -18,7 +18,9 @@ import {
   Database,
   Shield,
   Globe,
-  AlertTriangle
+  AlertTriangle,
+  Bot,
+  Sparkles
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -62,6 +64,8 @@ export function ShipmentsContent() {
   } | null>(null)
 
   const [history, setHistory] = useState<any[]>([])
+  const [aiSuggestion, setAiSuggestion] = useState<string | null>(null)
+  const [aiLoading, setAiLoading] = useState(false)
 
   const fetchHistory = async () => {
     try {
@@ -142,6 +146,39 @@ export function ShipmentsContent() {
         cbamGrade,
         cbamCertificates
       })
+
+      // === Gemini AI Optimizasyon Önerisi ===
+      setAiSuggestion(null)
+      setAiLoading(true)
+      try {
+        const aiRes = await fetch('/api/ai-suggestion', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            distance: Math.round(distance),
+            carbon: parseFloat(carbon.toFixed(2)),
+            priceTRY: Math.round(priceTRY),
+            priceUSD: parseFloat((priceTRY / exchangeRates.USD).toFixed(2)),
+            destName: coords.displayName.split(',')[0],
+            weight,
+            transportMode,
+            cbamCost: parseFloat(cbamCost.toFixed(2)),
+            cbamGrade,
+            cbamCertificates
+          })
+        })
+        const aiData = await aiRes.json()
+        if (aiData.suggestion) {
+          setAiSuggestion(aiData.suggestion)
+        } else if (aiData.error) {
+          setAiSuggestion("⚠️ Öneri şu an oluşturulamadı: " + aiData.error)
+        }
+      } catch (aiErr) {
+        console.error('AI Öneri hatası:', aiErr)
+        setAiSuggestion("❌ AI servisine ulaşılamıyor. Lütfen internet bağlantınızı kontrol edin.")
+      } finally {
+        setAiLoading(false)
+      }
     } catch (error) {
       console.error("İşlem başarısız:", error)
     } finally {
@@ -385,6 +422,39 @@ export function ShipmentsContent() {
                       </p>
                     </div>
                   </div>
+
+                  {/* ═══ Gemini AI Optimizasyon Önerisi ═══ */}
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30 shadow-lg"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                        <Sparkles className="w-4 h-4 text-violet-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-violet-400">Gemma 3 AI Lojistik Danışmanı</h4>
+                        <p className="text-[9px] text-muted-foreground">Google Gemma 3 27B — Gerçek zamanlı optimizasyon analizi</p>
+                      </div>
+                    </div>
+                    {aiLoading ? (
+                      <div className="flex items-center gap-3 py-4">
+                        <div className="flex gap-1">
+                          <span className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" style={{animationDelay: '0ms'}} />
+                          <span className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" style={{animationDelay: '150ms'}} />
+                          <span className="w-2 h-2 rounded-full bg-violet-400 animate-bounce" style={{animationDelay: '300ms'}} />
+                        </div>
+                        <span className="text-[11px] text-violet-400 font-medium">Yapay zeka verileri analiz ediyor...</span>
+                      </div>
+                    ) : aiSuggestion ? (
+                      <div className="text-[11px] text-muted-foreground leading-relaxed whitespace-pre-line">
+                        {aiSuggestion}
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground/50 italic">Öneri yükleniyor...</p>
+                    )}
+                  </motion.div>
 
                   {/* Real-time Route Map (Leaflet) */}
                   <div className="mt-6 space-y-3">

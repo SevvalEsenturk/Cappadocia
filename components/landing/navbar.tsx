@@ -16,11 +16,12 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-4">
       <nav className="max-w-5xl mx-auto flex items-center justify-between h-16 px-6 rounded-2xl bg-white/80 backdrop-blur-md border border-slate-200 shadow-sm">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-200">
-            <Bot className="w-6 h-6 text-white" />
+        <Link href="/" className="flex items-center gap-1 group">
+          <div className="w-12 h-12 flex items-center justify-center group-hover:scale-110 transition-transform overflow-hidden">
+            <img src="/logo_black.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl dark:hidden" />
+            <img src="/logo.png" alt="PeriCloud Logo" className="w-full h-full object-contain drop-shadow-2xl hidden dark:block" />
           </div>
-          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">CaveGuard</span>
+          <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">PeriCloud</span>
         </Link>
         
         {/* Desktop Navigation */}

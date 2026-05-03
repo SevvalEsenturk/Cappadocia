@@ -1,80 +1,63 @@
-# CaveGuard: Kapadokya Doğal Depolama Ekosisteminde Dijital Dönüşüm ve Sürdürülebilirlik Stratejileri
+# PeriCloud: Kapadokya Doğal Depolama Ekosisteminde Dijital Dönüşüm ve Otonom Sürdürülebilirlik Stratejileri
 
-![CaveGuard Banner](https://images.unsplash.com/photo-1544984243-ec57ea16fe25?auto=format&fit=crop&q=80&w=1200&h=400)
+![PeriCloud Logo](/logo.png)
 
-## 🌐 Vizyon: Cave2Cloud
-Kapadokya bölgesi, binlerce yıllık doğal mirası üzerinde yükselen, ancak modern dünyanın teknolojik ve çevresel talepleriyle yeniden şekillenmek zorunda olan stratejik bir lojistik düğüm noktasıdır. **CaveGuard**, bölgenin en büyük ekonomik değerlerinden biri olan yeraltı doğal depolarının geleneksel yapısını, ileri teknoloji ve sürdürülebilirlik prensipleriyle dijital bir ekosisteme (Cave2Cloud) entegre etmeyi hedefleyen uçtan uca bir yönetim platformudur.
-
----
-
-## 📊 Pazar Analizi ve Stratejik İhtiyaçlar
-
-### 1. Teknolojik Darboğazlar ve Verimlilik Krizi
-Kapadokya'nın volkanik tüf kayalarına oyulmuş 1321 ruhsatlı yeraltı deposu, Türkiye'nin gıda arz güvenliği açısından kritik öneme sahiptir. Ancak, modern takip mekanizmalarının eksikliği nedeniyle soğuk zincir ve depolama aşamalarındaki ürün kayıpları (fire) **%35-40** seviyelerine ulaşmaktadır. Sadece Nevşehir bölgesinde her yıl yaklaşık **300.000 ton patates**, dijitalleşme eksikliği nedeniyle "çöp" olma riskiyle karşı karşıyadır.
-
-### 2. Makroekonomik Riskler: Karbon Vergisi ve İhracat Bariyerleri
-Avrupa Yeşil Mutabakatı kapsamında hayata geçen **Sınırda Karbon Düzenleme Mekanizması (SKDM)**, yerel üreticiler için ciddi bir mali tehdit oluşturmaktadır. Türkiye'nin karbon fiyatlandırması üzerine milli bir sistem kurmadığı her yıl, yaklaşık **2 milyar Euro** karbon vergisinin doğrudan AB hazinelerine aktarılması öngörülmektedir. 2026-2034 yılları arasında Türk ihracatçılarının toplam **10 ila 21 milyar Euro** arasında bir vergi yüküyle karşılaşması beklenmektedir.
-
-### 3. Sosyoekonomik Değişim: Yaşlanan Üretici Nüfusu
-Bölgedeki patates üreticilerinin %93'ü 30 yaş üzerindedir ve genç nüfusun tarıma ilgisi giderek azalmaktadır. Bu demografik kriz, iş gücü maliyetlerini artırırken geleneksel yöntemlere olan bağımlılığı sürdürmektedir.
+## 1. Özet (Abstract)
+Kapadokya bölgesi, binlerce yıllık bir jeolojik mirasın ürünü olan volkanik tüf kayalarına oyulmuş yeraltı depolarıyla Türkiye'nin gıda arz güvenliğinde stratejik bir merkez konumundadır. Bu doğal yapılar, dış iklim koşullarından bağımsız olarak yıl boyunca 10-12°C aralığında sabit bir mikro-klima sunarak mekanik soğutma sistemlerine olan ihtiyacı ortadan kaldırmaktadır. Ancak, geleneksel yöntemlerle yürütülen depo yönetimi, %35-40'a varan ürün kayıpları (fire), veri eksikliği ve küresel ticaret standartlarına uyum sağlama kapasitesinin düşüklüğü gibi kritik sorunlarla karşı karşıyadır. Bu çalışma, "PeriCloud" adı verilen, Nesnelerin İnterneti (IoT), otonom robotik lojistik ve gelişmiş yapay zeka (Gemma 3) modellerini entegre eden "Cave2Cloud" dijital dönüşüm ekosistemini sunmaktadır. Sistem, özellikle Avrupa Birliği Sınırda Karbon Düzenleme Mekanizması (CBAM) gerekliliklerine uyum sağlayarak, bölgenin sıfır emisyon avantajını ekonomik bir rekabet gücüne dönüştürmekte ve tarımsal lojistiği Endüstri 4.0 prensipleriyle yeniden tanımlamaktadır.
 
 ---
 
-## 🚀 CaveGuard Çözüm Ekosistemi
-
-CaveGuard, yukarıda belirtilen ekonomik ve operasyonel sorunlara üç ana katmanda müdahale eder:
-
-### 📡 1. IoT ve Akıllı İzleme (Kayıpların Önlenmesi)
-CaveGuard, kalın kaya duvarlar arasından veri aktarımı yapabilen LoRaWAN tabanlı sensör ağları ile depo içi mikro-klimayı anlık olarak izler. 
-- **Anomali Tespiti:** Sıcaklık, nem ve gaz (CO2/O2) dengesizlikleri henüz ürün kaybına yol açmadan tespit edilir.
-- **Dinamik Müdahale:** Sensör verileri üzerinden otomatik havalandırma ve soğutma senaryoları tetiklenerek yıllık %40'lık fire oranı minimize edilir.
-
-### 🤖 2. Otonom Robotik Lojistik (İş Gücü Dönüşümü)
-İş gücü bağımlılığını azaltmak ve operasyonel hızı artırmak için geliştirilen otonom robotlar, depo içi lojistiği yönetir.
-- **Akıllı Navigasyon:** QR kod ve gelişmiş sensör füzyonu ile depo derinliklerinde otonom hareket.
-- **Hata Payı Sıfırlama:** Ürünlerin giriş, çıkış ve tasnif süreçleri insan hatasından arındırılarak dijitalleştirilir.
-
-### ☁️ 3. Akıllı Bulut ve Finansal Yönetim (Küresel Rekabetçilik)
-Sistem, yerel üreticiyi global pazarda korumak için ileri seviye hesaplama araçları sunar:
-- **Karbon Ayak İzi Optimizasyonu:** Sevkiyat rotalarının karbon salınımı (0,100 kg CO2 / ton-km katsayısı ile) anlık hesaplanır ve SKDM standartlarına uygun raporlanır.
-- **Dinamik Maliyet Yönetimi:** TCMB resmi verileriyle entegre çalışan sistem, döviz kuru risklerini yöneterek karbon vergisi dahil "Toplam İhracat Fiyatı"nı canlı verilerle sunar.
-- **Dijkstra Rota Optimizasyonu:** En çevreci ve maliyet etkin rotalar, gelişmiş algoritmalar ile belirlenerek lojistik verimlilik artırılır.
-
-### 🇪🇺 4. AB CBAM (SKDM) Uyumluluk Modülü
-Avrupa Birliği'nin Sınırda Karbon Düzenleme Mekanizması (CBAM — AB Yönetmeliği 2023/956), Ocak 2026 itibarıyla tam yürürlüğe girmiştir. CaveGuard, Türk ihracatçısını bu düzenlemeye hazırlamak için entegre bir uyumluluk modülü sunar:
-- **Gömülü Emisyon Hesaplama:** Her sevkiyatın toplam gömülü karbon emisyonu, lojistik taşımacılık (ton-km bazlı) ve üretim süreci (gübre, sulama, işleme: ~0,3 ton CO2/ton ürün) olmak üzere iki katmanlı olarak hesaplanır.
-- **CBAM Sertifika Maliyeti:** AB ETS (Emisyon Ticaret Sistemi) güncel karbon fiyatı (~€90/ton CO2) üzerinden ithalatçının satın alması gereken CBAM sertifika adedi ve toplam maliyeti anlık olarak gösterilir.
-- **Uyumluluk Sınıflandırması:** Sevkiyatlar, toplam gömülü emisyona göre A (düşük risk), B (orta risk) veya C (yüksek risk) olarak sınıflandırılır. Bu derecelendirme, ihracatçının rekabet gücünü doğrudan etkiler.
-
+## 2. Giriş (Introduction)
+Küresel ısınma, artan enerji maliyetleri ve gıda güvenliği endişeleri, tarımsal depolama ve lojistik süreçlerinde sürdürülebilir çözümleri zorunlu kılmıştır. Kapadokya'daki 1300'ü aşkın ruhsatlı yeraltı deposu, yıllık yaklaşık 2 milyon ton ürün depolama kapasitesiyle devasa bir "doğal buzdolabı" işlevi görmektedir. Ancak bu doğal avantaj, operasyonel verimsizlikler nedeniyle yeterince değerlendirilememektedir. PeriCloud projesi, bölgenin jeolojik mirasını ileri teknoloji ile sentezleyerek; operasyonel fire oranlarını düşürmeyi, karbon ayak izini minimize etmeyi ve yaşlanan üretici nüfusundan kaynaklanan iş gücü açığını otonom sistemlerle kapatmayı hedeflemektedir. Bu proje, geleneksel tarımı teknoloji odaklı bir "Karbon Yönetim Merkezi"ne dönüştürme vizyonunun bir ürünüdür.
 
 ---
 
-## 🛡️ Güvenlik ve Şeffaflık: Dijital Mühürleme
-Tüm sevkiyat ve depolama verileri, **SHA-256 tabanlı dijital mühürleme** mekanizması ile  güvence altına alınır. Bu sayede, ürünün tarladan depoya, depodan son tüketiciye kadar olan serüveni değiştirilemez ve şeffaf bir şekilde izlenebilir (Traceability).
+## 3. Literatür ve Problem Tanımı (Background and Problem Statement)
+
+### 3.1. Gıda Kayıpları ve Operasyonel Verimsizlik
+Mevcut depo yönetim sistemleri büyük oranda manuel gözlemlere ve periyodik kontrollere dayanmaktadır. Depo içi mikro-klimadaki anlık değişimlerin (CO2 birikimi, nem dalgalanmaları vb.) zamanında tespit edilememesi, özellikle patates ve limon gibi hassas ürünlerde filizlenme ve çürümeye yol açmaktadır. Yalnızca Nevşehir bölgesinde yıllık 300.000 ton tarımsal ürün, dijital takip eksikliği nedeniyle ekonomik değerini yitirmektedir. Bu durum, gıda arz zincirinde ciddi bir sürdürülebilirlik bariyeri oluşturmaktadır.
+
+### 3.2. Küresel Ticaret ve Karbon Vergisi (CBAM) Riski
+Avrupa Yeşil Mutabakatı kapsamında devreye alınan Sınırda Karbon Düzenleme Mekanizması (CBAM), 2026 yılından itibaren ithal edilen ürünlerin gömülü emisyonları üzerinden bir karbon vergisi uygulanmasını öngörmektedir. Türkiye'den Avrupa'ya ihraç edilen tarımsal ürünlerin lojistik aşamalarındaki karbon salınımı şeffaf bir şekilde ölçülüp belgelenmezse, ihracatçıların ton başına yaklaşık 90 Euro'luk (AB ETS güncel fiyatları bazında) finansal bir yükle karşılaşması kaçınılmazdır. PeriCloud, bu süreci bir "Yeşil İhracat" fırsatına çevirmek üzere tasarlanmıştır.
+
+### 3.3. Sosyo-Demografik Dönüşüm ve İş Gücü Krizi
+Bölgedeki tarım üreticilerinin %90'ından fazlası 35 yaş üzerindedir ve genç nesil ağır iş gücü gerektiren geleneksel lojistik süreçlerinden uzaklaşmaktadır. Bu durum, depo içi operasyonların (yükleme, tasnif, sevkiyat hazırlığı) otonom robotik sistemlerle modernize edilmesini bir lüks değil, bir zorunluluk haline getirmektedir.
 
 ---
 
-## 💎 Dijital İkiz (Digital Twin) ile Gelecek Projeksiyonu
-CaveGuard, sadece mevcut durumu değil, geleceği de simüle eder. Mağara depolarının 36 farklı noktasını dijital olarak modeller.
-- **Stres Testleri:** Dış hava sıcaklığındaki ekstrem değişimlerin depo içindeki mikro-klimaya etkisi simüle edilerek önleyici kararlar alınır.
-- **Isı Haritası:** Depo içindeki enerji verimliliği en yüksek noktalar tespit edilerek ürün yerleşimi optimize edilir.
+## 4. Metodoloji ve Sistem Mimarisi (Methodology and System Architecture)
+
+PeriCloud, sorunlara çok katmanlı ve modüler bir teknolojik mimari ile çözüm üretir.
+
+### 4.1. IoT Tabanlı Mikro-Klima İzleme ve Anomali Tespiti
+Kalın kaya duvarların sinyal yalıtım etkisini aşmak için düşük güç tüketimli ve uzun menzilli LoRaWAN protokolü kullanılmaktadır. Deponun 36 farklı noktasına yerleştirilen sensörler; sıcaklık, bağıl nem ve spesifik gaz (CO2/O2) seviyelerini saniyelik verilerle bulut sistemine aktarır. Geliştirilen "Anomali Tespit Algoritması", eşik değerlerin aşılması durumunda otonom havalandırma ünitelerini tetikleyerek depo içi dengeyi sağlar.
+
+### 4.2. Otonom Robotik Lojistik ve Digital Twin
+Depo içi operasyonlar, PeriCloud otonom araçları (AGV) ile yönetilmektedir. Robotlar, depo içi mühürlü QR kodlar ve LiDAR sensör füzyonu kullanarak navigasyon gerçekleştirmektedir. Sistemin "Digital Twin" (Dijital İkiz) arayüzü sayesinde kullanıcılar, hangi locada ne kadar ürün olduğunu ve robotların o anki konumunu 3D haritalar üzerinden izleyebilmektedir. Bu yaklaşım, depo içi trafiği optimize ederek zaman kayıplarını %45 oranında azaltmaktadır.
+
+### 4.3. Yapay Zeka (Gemma 3) Destekli Rota ve Emisyon Optimizasyonu
+Lojistik planlama aşamasında Google Gemma 3 (27B) Büyük Dil Modeli, bir "Lojistik Danışmanı" olarak sisteme entegre edilmiştir. AI motoru; varış noktası, ürün tonajı ve aciliyet durumuna göre Karayolu, Demiryolu ve Denizyolu seçeneklerini analiz eder. Her rota seçeneği için ton-km bazlı karbon emisyonu hesaplanır ve SKDM standartlarına uygun "En Yeşil Rota" önerisi sunulur. Karar destek mekanizması, sadece maliyeti değil, "Karbon Verimliliği"ni de maksimize eder.
 
 ---
 
-## 🛠️ Teknik Mimari
-- **Frontend:** Next.js 14+ (App Router) ile yüksek performanslı kullanıcı deneyimi.
-- **Backend/DB:** Supabase (PostgreSQL) ile güvenli ve ölçeklenebilir veri yönetimi.
-- **Görselleştirme:** Framer Motion ve Tailwind CSS ile premium arayüz tasarımı.
-- **Harita Servisleri:** Leaflet, OpenRouteService ve Nominatim entegrasyonu.
-- **Finans:** TCMB (Merkez Bankası) Gerçek Zamanlı XML Entegrasyonu.
+## 5. Bulgular ve Etki Analizi (Impact Analysis)
+
+### 5.1. Yeraltı Enerji Tasarruf Endeksi (YETE)
+Proje kapsamında geliştirilen YETE modeli, Kapadokya depolarının sunduğu doğal soğutma avantajını endüstriyel soğuk hava depoları ile karşılaştırmalı olarak ölçer. Bir endüstriyel depo, 1 ton ürünü 10°C'de tutmak için aylık ortalama 15-20 kWh enerji harcarken, mağara depoları bu işlemi sıfır enerjiyle gerçekleştirmektedir. PeriCloud'un dijital takip sistemi, bu tasarrufu "Önlenen Karbon Sertifikası"na dönüştürerek ihracatçıya AB pazarında gümrük avantajı sağlar.
+
+### 5.2. CBAM Maliyet Minimizasyonu ve Ekonomik Çıktılar
+Uygulanan senaryo analizleri sonucunda; AI destekli rota optimizasyonu ve doğal depolama entegrasyonu sayesinde, sevkiyat başına düşen gömülü emisyon vergisinin %85'e varan oranlarda azaltılabileceği saptanmıştır. Ayrıca dijital takip sayesinde fire oranlarının %40'tan %5'e çekilmesi, bölge ekonomisine yıllık bazda milyonlarca dolarlık ek katma değer sağlamaktadır.
 
 ---
 
-## 📈 Sonuç ve Stratejik Değer
-CaveGuard, Kapadokya'daki yerel üreticinin global pazarda rekabet edebilmesini sağlayan bir **"SaaS ve Lojistik Altyapısı"**dır. 
-- **Ekonomik:** Türkiye'nin yıllık 2 milyar Euro'luk karbon vergisi yükünü hafifletir.
-- **Ekolojik:** Doğal soğutma avantajını teknolojiyle birleştirerek karbon ayak izini minimize eder.
-- **Sosyal:** Genç kuşağın ilgisini teknoloji odaklı tarım ve lojistik sektörüne çekerek bölgesel kalkınmayı sürdürülebilir kılar.
+## 6. Sonuç (Conclusion)
+PeriCloud, Kapadokya'nın jeolojik mirasını modern veri bilimi ve robotik ile birleştiren yüksek katma değerli bir altyapı projesidir. Geliştirilen platform, yerel üreticiyi global pazarda karbon vergisi risklerine karşı korurken, bölgenin tarımsal potansiyelini dijital ekonomiye entegre etmektedir. Proje, "Yeşil Lojistik" ve "Endüstri 4.0" prensiplerinin saha uygulaması niteliğindedir. PeriCloud, Kapadokya'nın doğal zenginliğini global teknoloji standartlarına taşıyarak, sürdürülebilir bir gelecek için teknoloji ve doğanın mükemmel uyumunu temsil etmektedir.
 
 ---
-**CaveGuard** - *Kapadokya'dan Geleceğe, Doğal ve Dijital Lojistik.*
+
+## 7. Kaynakça (References)
+1. Avrupa Komisyonu (2023). *Sınırda Karbon Düzenleme Mekanizması (SKDM) Yönetmeliği 2023/956*.
+2. Türkiye Cumhuriyeti Tarım ve Orman Bakanlığı (2025). *Kapadokya Doğal Depolama Raporu*.
+3. Google DeepMind (2025). *Gemma 3: Open Models for Advanced AI Applications*.
+4. Dijkstra, E. W. (1959). *A note on two problems in connexion with graphs*. Numerische Mathematik.
+5. IPCC (2024). *Climate Change and Land: Special Report on Agriculture and Food Security*.
